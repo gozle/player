@@ -1,0 +1,16 @@
+.link {
+  height: 1.5em;
+  margin-right: 1em;
+
+  & > svg {
+    height: 100%;
+    fill: white;
+
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+  }
+
+  &:hover > svg {
+    fill: #00d1ff;
+  }
+}

@@ -1,0 +1,24 @@
+@import '../../../../../scss/mixins.scss';
+
+.volume {
+  @include webkitFlex(row, center, start);
+  @include flex(row, center, flex-start);
+
+  width: 2.5em;
+  margin-left: 0.5em;
+
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+
+  &:hover {
+    width: 150px;
+
+    & > .volume_progress {
+      opacity: 1;
+    }
+  }
+}
+
+.volume_progress {
+  opacity: 0;
+}

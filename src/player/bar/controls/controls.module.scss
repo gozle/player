@@ -1,0 +1,8 @@
+@import '../../../scss/mixins.scss';
+
+.controls {
+  @include webkitFlex(row, center, justify);
+  @include flex(row, center, space-between);
+
+  padding: 0.5em;
+}

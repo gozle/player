@@ -1,0 +1,35 @@
+.area {
+  position: relative;
+  height: 0.25em;
+  background-color: rgba(246, 246, 246, 0.3);
+  cursor: pointer;
+}
+
+.loaded_area {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(246, 246, 246, 0.6);
+  pointer-events: none;
+}
+
+.played_area {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #00d1ff;
+  pointer-events: none;
+}
+
+.pointer {
+  background-color: white;
+  border-radius: 50%;
+  height: 0.75em;
+  width: 0.75em;
+
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) translateX(-50%);
+}

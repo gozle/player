@@ -1,0 +1,31 @@
+.button {
+  display: inline-flex;
+  outline: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  -webkit-transform-origin: center;
+  transform-origin: center;
+
+  font-size: 1em;
+
+  & > svg {
+    height: 1.5em;
+    width: 1.5em;
+  }
+
+  &:hover {
+    opacity: 0.6;
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05);
+  }
+
+  &:active:not(:disabled) {
+    opacity: 0.3;
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+  }
+}

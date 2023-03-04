@@ -1,0 +1,13 @@
+@mixin flex($dir, $align, $justify) {
+  display: flex;
+  flex-direction: $dir;
+  align-items: $align;
+  justify-content: $justify;
+}
+
+@mixin webkitFlex($dir, $align, $justify) {
+  display: -webkit-flex;
+  flex-direction: $dir;
+  -webkit-box-align: $align;
+  -webkit-box-pack: $justify;
+}

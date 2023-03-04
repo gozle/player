@@ -1,0 +1,31 @@
+.container {
+  position: relative;
+  height: 1em;
+  margin: 0 0.5em;
+
+  flex-grow: 1;
+
+  overflow: hidden;
+
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.progress {
+  position: absolute;
+  left: 0.5em;
+  right: 0.5em;
+  top: 50%;
+
+  height: 0.2em;
+
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+
+  &:hover {
+    height: 0.4em;
+  }
+}

@@ -1,0 +1,61 @@
+@import '../../../scss/mixins.scss';
+
+.icon {
+  display: inline-flex;
+
+  & > svg {
+    height: 1.5em;
+    width: 1.5em;
+  }
+}
+
+.back {
+  @include webkitFlex(row, center, start);
+  @include flex(row, center, flex-start);
+
+  padding: 0.5em;
+
+  border-bottom: 1px solid gray;
+
+  & > .icon {
+    transform: rotate(180deg);
+    margin-right: 0.5em;
+
+    & > svg {
+      fill: none;
+
+      & > path {
+        stroke: currentColor;
+      }
+    }
+  }
+
+  & > .label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.levels_list {
+  padding: 0;
+  margin: 0;
+}
+
+.list_item {
+  @include webkitFlex(row, center, start);
+  @include flex(row, center, flex-start);
+
+  padding: 0.75em;
+  margin: 0;
+  list-style: none;
+
+  & > .icon {
+    margin-right: 0.25em;
+
+    & > svg {
+      height: 1.2em;
+      width: 1.2em;
+    }
+  }
+}

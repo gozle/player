@@ -1,0 +1,31 @@
+.container {
+  position: relative;
+  height: 0.5em;
+  width: calc(100% - 1em);
+  margin: 0 0.5em;
+}
+
+.progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+
+  height: 0.5em;
+
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 769px) {
+  .progress {
+    height: 0.25em;
+
+    &:hover {
+      height: 0.5em;
+    }
+  }
+}

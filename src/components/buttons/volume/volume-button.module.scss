@@ -1,0 +1,9 @@
+.button {
+  & > svg {
+    fill: none;
+
+    & > path {
+      stroke: white;
+    }
+  }
+}
