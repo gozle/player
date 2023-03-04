@@ -1,13 +1,39 @@
 @mixin flex($dir, $align, $justify) {
+  display: -webkit-flex;
   display: flex;
+
+  -webkit-flex-direction: $dir;
   flex-direction: $dir;
+
+  -webkit-align-items: $align;
   align-items: $align;
+
+  -webkit-justify-content: $align;
   justify-content: $justify;
 }
 
 @mixin webkitFlex($dir, $align, $justify) {
-  display: -webkit-flex;
-  flex-direction: $dir;
+  display: -webkit-box;
+  display: -ms-flexbox;
+
+  @if $dir == row-reverse {
+    -webkit-box-direction: reverse;
+    -webkit-box-orient: horizontal;
+  } @else if $dir == column {
+    -webkit-box-direction: normal;
+    -webkit-box-orient: vertical;
+  } @else if $dir == column-reverse {
+    -webkit-box-direction: reverse;
+    -webkit-box-orient: vertical;
+  } @else {
+    -webkit-box-direction: normal;
+    -webkit-box-orient: horizontal;
+  }
+  -ms-flex-direction: $dir;
+
   -webkit-box-align: $align;
+  -ms-flex-align: $align;
+
   -webkit-box-pack: $justify;
+  -ms-flex-pack: $justify;
 }
