@@ -8,6 +8,7 @@ import { RightControls } from './right-controls';
 type P = {
   fullScreen: boolean;
   hls: Hls | null;
+  live: boolean;
   muted: boolean;
   onFullScreenClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onPlayPauseButtonClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -25,6 +26,7 @@ export const Controls = React.memo(
   React.forwardRef<HTMLDivElement, P>((props, ref) => (
     <div className={styles.controls}>
       <LeftControls
+        live={props.live}
         muted={props.muted}
         onPlayPauseButtonClick={props.onPlayPauseButtonClick}
         onVolumeButtonClick={props.onVolumeButtonClick}

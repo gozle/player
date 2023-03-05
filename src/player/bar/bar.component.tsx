@@ -1,5 +1,5 @@
-import type Hls from 'hls.js';
-import React from 'react';
+import Hls from 'hls.js';
+import React, { useMemo } from 'react';
 
 import styles from './bar.module.scss';
 import { Controls } from './controls';
@@ -29,22 +29,37 @@ export const Bar = React.memo(
     { time: HTMLDivElement | null; volume: HTMLDivElement | null },
     P
   >((props, ref) => {
+    const live = Boolean(
+      props.hls &&
+        props.hls.currentLevel !== -1 &&
+        props.hls.levels[props.hls.currentLevel].details?.live,
+    );
+
     return (
-      <div className={styles.bar} onClick={(e) => e.stopPropagation()}>
-        <TimeProgress
-          loaded={props.loaded}
-          onPointerDown={props.onTimePointerDown}
-          progress={props.played}
-          ref={(instance) => {
-            if (ref && instance) {
-              if (typeof ref !== 'function' && ref.current)
-                ref.current.time = instance;
-            }
-          }}
-        />
+      <div
+        className={styles.bar}
+        onClick={(e) => e.stopPropagation()}
+        style={{}}
+      >
+        {!live ? (
+          <TimeProgress
+            loaded={props.loaded}
+            onPointerDown={props.onTimePointerDown}
+            progress={props.played}
+            ref={(instance) => {
+              if (ref && instance) {
+                if (typeof ref !== 'function' && ref.current)
+                  ref.current.time = instance;
+              }
+            }}
+          />
+        ) : (
+          <></>
+        )}
         <Controls
           fullScreen={props.fullScreen}
           hls={props.hls}
+          live={live}
           muted={props.muted}
           onFullScreenClick={props.onFullScreenClick}
           onPlayPauseButtonClick={props.onPlayPauseButtonClick}

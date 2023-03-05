@@ -1,0 +1,20 @@
+@import '../../../../../scss/mixins.scss';
+
+.container {
+  @include webkitFlex(row, center, center);
+  @include flex(row, center, center);
+}
+
+.point {
+  height: 0.5em;
+  width: 0.5em;
+  margin-right: 0.25em;
+
+  background-color: red;
+
+  border-radius: 50%;
+}
+
+.label {
+  color: white;
+}

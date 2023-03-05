@@ -3,9 +3,11 @@ import React from 'react';
 import { PlayPauseButton } from '../../../../components/buttons';
 
 import styles from './left-controls.module.scss';
+import { Live } from './live';
 import { VolumeControls } from './volume-controls';
 
 type P = {
+  live: boolean;
   muted: boolean;
   onPlayPauseButtonClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onVolumeButtonClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -28,6 +30,7 @@ export const LeftControls = React.memo(
         ref={ref}
         volume={props.volume}
       />
+      {props.live && <Live />}
     </div>
   )),
 );

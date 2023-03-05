@@ -8,7 +8,7 @@ const App = () => {
     <div className="App">
       <div>
         {adShowed && (
-          <GozlePlayer url="https://v.gozle.com.tm/media/videos/59206/video.m3u8" />
+          <GozlePlayer url="https://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8" />
         )}
       </div>
     </div>

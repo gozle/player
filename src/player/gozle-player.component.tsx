@@ -213,7 +213,7 @@ export const GozlePlayer = ({ url }: P) => {
       tabIndex={0}
     >
       <ReactPlayer
-        config={{ forceHLS: true }}
+        config={{ forceHLS: true, hlsOptions: { liveSyncDurationCount: 9 } }}
         height="100%"
         muted={muted}
         onDuration={handleDuration}
