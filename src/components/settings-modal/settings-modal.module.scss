@@ -1,0 +1,66 @@
+@import '../../scss/mixins.scss';
+
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  @include webkitFlex(row, center, center);
+  @include flex(row, center, center);
+
+  background-color: rgba(0, 0, 0, 0.3);
+
+  overflow: hidden;
+
+  font-size: 1.25em;
+}
+
+.popup {
+  width: 18em;
+  padding: 0.75em;
+  border-radius: 0.5em;
+
+  background-color: white;
+}
+
+.title {
+  margin-bottom: 1em;
+}
+
+.row {
+  margin: 1em 0;
+}
+
+.label {
+  font-size: 0.8em;
+  margin-bottom: 0.25em;
+}
+
+.value {
+  width: 100%;
+
+  & > select {
+    width: 100%;
+    padding: 1em;
+    border-radius: 0.25em;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #f1f1f1;
+    font-size: 0.8em;
+  }
+}
+
+.button_container {
+  @include webkitFlex(row, center, end);
+  @include flex(row, center, flex-end);
+
+  button {
+    font-size: 1em;
+    outline: none;
+    border: none;
+    background: transparent;
+    margin-left: auto;
+    padding: 0.5em 1em;
+  }
+}

@@ -9,7 +9,6 @@ import styles from './settings-popup.module.scss';
 
 type P = {
   hls: Hls;
-  id: string;
   onQualityLevelChange: (level: number) => void;
   onRateChange: (rate: number) => void;
   rate: number;
@@ -18,7 +17,6 @@ type P = {
 
 export const SettingsPopup = ({
   hls,
-  id,
   onQualityLevelChange,
   onRateChange,
   rate,
@@ -49,7 +47,7 @@ export const SettingsPopup = ({
   );
 
   return (
-    <div id={id} className={styles.popup}>
+    <div className={styles.popup}>
       <div
         className={styles.screen}
         style={view !== 'main' ? { marginLeft: '-100%' } : undefined}
@@ -78,8 +76,12 @@ export const SettingsPopup = ({
               {hls.currentLevel === -1
                 ? 'Auto'
                 : hls.autoLevelEnabled
-                ? `Auto (${hls.levels[hls.currentLevel].name})`
-                : hls.levels[hls.currentLevel].name}
+                ? `Auto (${
+                    hls.levels[hls.currentLevel].name ||
+                    hls.levels[hls.currentLevel].height
+                  })`
+                : hls.levels[hls.currentLevel].name ||
+                  hls.levels[hls.currentLevel].height}
             </span>
             <div className={styles.icon}>
               <ArrowRightIcon />

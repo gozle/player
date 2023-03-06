@@ -1,9 +1,9 @@
 import React from 'react';
 
-import styles from './volume-button.module.scss';
-
 import { MuteIcon, VolumeIcon } from '../../../icons';
 import { IconButton } from '../../icon-button';
+
+import styles from './volume-button.module.scss';
 
 type P = {
   muted: boolean;

@@ -1,0 +1,71 @@
+@import '../../scss/mixins.scss';
+
+.bar_container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+
+  font-size: 1.25em;
+}
+
+.bar_inner_container {
+  background-color: rgba(0, 0, 0, 0.3);
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+
+  opacity: 0;
+
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+
+  pointer-events: none;
+
+  &.visible {
+    opacity: 1;
+    pointer-events: unset;
+  }
+}
+
+.top_bar {
+  @include webkitFlex(column, stretch, start);
+  @include flex(column, stretch, flex-start);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  cursor: default;
+}
+
+.cental_bar {
+  @include webkitFlex(column, stretch, start);
+  @include flex(column, stretch, flex-start);
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+
+  cursor: default;
+}
+
+.bottom_bar {
+  @include webkitFlex(column, stretch, start);
+  @include flex(column, stretch, flex-start);
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  cursor: default;
+}

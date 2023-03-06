@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { PlayPauseButton } from '../../../../components/buttons';
+import { Live } from '../../../components/live';
 
 import styles from './left-controls.module.scss';
-import { Live } from './live';
 import { VolumeControls } from './volume-controls';
 
 type P = {

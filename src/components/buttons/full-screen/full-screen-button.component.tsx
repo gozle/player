@@ -1,9 +1,9 @@
 import React from 'react';
 
-import styles from './full-screen-button.module.scss';
-
 import { FullScreenCollapseIcon, FullScreenExpandIcon } from '../../../icons';
 import { IconButton } from '../../icon-button';
+
+import styles from './full-screen-button.module.scss';
 
 type P = {
   fullScreen: boolean;

@@ -1,25 +1,20 @@
 import type Hls from 'hls.js';
 import React from 'react';
 
-import { FullScreenButton } from '../../../../components/buttons';
-import { Settings } from '../../../../components/settings';
-import { GozleLogo } from '../../../components/gozle-logo';
+import { Settings } from '../../../components/settings';
 
-import styles from './right-controls.module.scss';
+import styles from './top-controls.module.scss';
 
 type P = {
-  fullScreen: boolean;
   hls: Hls | null;
-  onFullScreenClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onQualityLevelChange: (level: number) => void;
   onRateChange: (rate: number) => void;
   rate: number;
   rateLevels: { name: string; value: number }[];
 };
 
-export const RightControls = React.memo((props: P) => (
+export const TopControls = React.memo((props: P) => (
   <div className={styles.container}>
-    <GozleLogo />
     {props.hls && (
       <Settings
         className={styles.settings}
@@ -30,10 +25,6 @@ export const RightControls = React.memo((props: P) => (
         rateLevels={props.rateLevels}
       />
     )}
-    <FullScreenButton
-      fullScreen={props.fullScreen}
-      onClick={props.onFullScreenClick}
-    />
   </div>
 ));
-RightControls.displayName = 'RightControls';
+TopControls.displayName = 'TopControls';

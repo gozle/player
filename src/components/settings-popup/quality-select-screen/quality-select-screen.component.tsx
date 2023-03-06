@@ -1,3 +1,4 @@
+import type { Level } from 'hls.js';
 import React from 'react';
 
 import { ArrowRightIcon, OkIcon } from '../../../icons';
@@ -8,7 +9,7 @@ type P = {
   autoLevelEnabled: boolean;
   className?: string;
   currentLevel: number;
-  levels: { name?: string }[];
+  levels: Level[];
   onBackClick?: () => void;
   onLevelClick: (event: React.MouseEvent) => void;
   rowClassName?: string;
@@ -47,7 +48,7 @@ export const QualitySelectScreen = React.memo(
                   }
                 />
               </div>
-              <div>{el.name || '-'}</div>
+              <div>{el.name || el.height}</div>
             </li>
           ))}
           <li

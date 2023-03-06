@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { GozleIcon } from '../../../../../icons';
+import { GozleIcon } from '../../../icons';
 
 import styles from './gozle-logo.module.scss';
 
@@ -14,3 +14,4 @@ export const GozleLogo = React.memo(() => (
     <GozleIcon />
   </a>
 ));
+GozleLogo.displayName = 'GozleLogo';

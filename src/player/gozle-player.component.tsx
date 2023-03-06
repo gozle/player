@@ -4,8 +4,11 @@ import { OnProgressProps } from 'react-player/base';
 import ReactPlayer from 'react-player/file';
 import screenfull from 'screenfull';
 
+import { useTouchscreen } from '../hooks/touchscreen.hook';
+
 import { Bar } from './bar';
 import styles from './gozle-player.module.scss';
+import { MobileControls } from './mobile-controls';
 
 type P = {
   url: string;
@@ -26,10 +29,6 @@ export const GozlePlayer = ({ url }: P) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const playerRef = useRef<ReactPlayer>(null);
-  const progressRef = useRef<{
-    time: HTMLDivElement | null;
-    volume: HTMLDivElement | null;
-  }>({ time: null, volume: null });
 
   const [ready, setReady] = useState<boolean>(false);
 
@@ -44,104 +43,13 @@ export const GozlePlayer = ({ url }: P) => {
   const [volume, setVolume] = useState<number>(1);
 
   const [playedLock, setPlayedLock] = useState<boolean>(false);
-  const [volumeLock, setVolumeLock] = useState<boolean>(false);
 
   const [quality, setQuality] = useState<number>(-1);
   const [rate, setRate] = useState<number>(1);
 
-  const calculateAndSetPlayed = (pageX: number) => {
-    if (progressRef.current.time) {
-      const targetRect = progressRef.current.time.getBoundingClientRect();
-      if (targetRect.width) {
-        let fraction = (pageX - targetRect.x) / targetRect.width;
-        if (fraction > 1) fraction = 1;
-        else if (fraction < 0) fraction = 0;
-        setPlayed(fraction);
-      }
-    }
-  };
-
-  const calculateAndSetVolume = (pageX: number) => {
-    if (progressRef.current.volume) {
-      const targetRect = progressRef.current.volume.getBoundingClientRect();
-      if (targetRect.width) {
-        let fraction = (pageX - targetRect.x) / targetRect.width;
-        if (fraction > 1) fraction = 1;
-        else if (fraction < 0) fraction = 0;
-        setVolume(fraction);
-      } else {
-        if (pageX > targetRect.x) setVolume(1);
-        else setVolume(0);
-      }
-    }
-  };
+  const touchscreen = useTouchscreen();
 
   const handleDuration = (duration: number) => setDuration(duration);
-
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.code) {
-      case 'Space':
-        togglePlayPause();
-        break;
-      case 'ArrowRight':
-        setPlayedLock(true);
-        setPlayed((prev) => prev + 5 / duration);
-        break;
-      case 'ArrowLeft':
-        setPlayedLock(true);
-        setPlayed((prev) => prev - 5 / duration);
-        break;
-      case 'ArrowUp':
-        setVolume((prev) => (prev + 0.05 >= 1 ? 1 : prev + 0.05));
-        break;
-      case 'ArrowDown':
-        setVolume((prev) => (prev - 0.05 <= 0 ? 0 : prev - 0.05));
-        break;
-      case 'KeyF':
-        toggleFullScreen();
-        break;
-      case 'KeyM':
-        toggleMuted();
-        break;
-    }
-  };
-
-  const handleKeyUp = (event: React.KeyboardEvent) => {
-    switch (event.code) {
-      case 'ArrowRight':
-      case 'ArrowLeft':
-        handlePointerUp();
-        break;
-    }
-  };
-
-  const handlePointerMove = (event: React.PointerEvent) => {
-    if (playedLock) calculateAndSetPlayed(event.pageX);
-    else if (volumeLock) calculateAndSetVolume(event.pageX);
-  };
-
-  const handlePointerUp = (event?: React.PointerEvent) => {
-    if (playedLock) {
-      playerRef.current?.seekTo(played, 'fraction');
-      setPlayedLock(false);
-      setPlaying(true);
-    } else if (volumeLock) setVolumeLock(false);
-
-    // Cancel click event after
-    if ((playedLock || volumeLock) && event) {
-      const captureClick = (e: MouseEvent) => {
-        e.stopPropagation(); // Stop the click from being propagated.
-        window.removeEventListener('click', captureClick, true); // cleanup
-      };
-
-      window.addEventListener(
-        'click',
-        captureClick,
-        true, // <-- This registeres this listener for the capture
-        //     phase instead of the bubbling phase!
-      );
-    }
-  };
 
   const handleProgress = ({ loaded, played }: OnProgressProps) => {
     setLoaded(loaded);
@@ -159,19 +67,6 @@ export const GozlePlayer = ({ url }: P) => {
     }
   };
 
-  const handleTimePointerDown = (event: React.PointerEvent) => {
-    event.preventDefault();
-    setPlayedLock(true);
-    calculateAndSetPlayed(event.pageX);
-  };
-
-  const handleVolumePointerDown = (event: React.PointerEvent) => {
-    event.preventDefault();
-    setVolumeLock(true);
-    setMuted(false);
-    calculateAndSetVolume(event.pageX);
-  };
-
   const toggleFullScreen = () => {
     if (containerRef.current) {
       if (fullScreen) {
@@ -184,10 +79,6 @@ export const GozlePlayer = ({ url }: P) => {
     }
   };
 
-  const toggleMuted = () => setMuted((prev) => !prev);
-
-  const togglePlayPause = () => setPlaying((prev) => !prev);
-
   useEffect(() => {
     if (hlsRef.current) hlsRef.current.currentLevel = quality;
   }, [quality]);
@@ -198,20 +89,19 @@ export const GozlePlayer = ({ url }: P) => {
         playerRef.current.getInternalPlayer().playbackRate = rate;
   }, [rate]);
 
+  useEffect(() => {
+    const div = document.createElement('div');
+    div.id = 'gozle-player-modal';
+    document.body.appendChild(div);
+
+    return () => {
+      const child = document.querySelector('#gozle-player-modal');
+      if (child) document.body.removeChild(child);
+    };
+  }, []);
+
   return (
-    <div
-      className={styles.container}
-      onClick={() => {
-        if (!playedLock) togglePlayPause();
-      }}
-      onKeyDown={handleKeyDown}
-      onKeyUp={handleKeyUp}
-      onPointerLeave={handlePointerUp}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      ref={containerRef}
-      tabIndex={0}
-    >
+    <div className={styles.container} ref={containerRef}>
       <ReactPlayer
         config={{ forceHLS: true, hlsOptions: { liveSyncDurationCount: 9 } }}
         height="100%"
@@ -222,31 +112,59 @@ export const GozlePlayer = ({ url }: P) => {
         onReady={handleReady}
         playing={!playedLock && playing}
         ref={playerRef}
-        style={{ aspectRatio: '16/9' }}
+        style={{ aspectRatio: '16/9', display: 'flex' }}
         url={url}
         volume={volume}
         width="100%"
       />
-      {ready && (
-        <Bar
-          fullScreen={fullScreen}
-          hls={hlsRef.current}
-          loaded={loaded}
-          muted={muted}
-          onFullScreenClick={toggleFullScreen}
-          onPlayPauseButtonClick={togglePlayPause}
-          onQualityLevelChange={(level: number) => setQuality(level)}
-          onRateChange={(rate: number) => setRate(rate)}
-          onTimePointerDown={handleTimePointerDown}
-          onVolumeButtonClick={toggleMuted}
-          onVolumePointerDown={handleVolumePointerDown}
-          played={played}
-          playing={playing}
-          rate={rate}
-          rateLevels={rateLevels}
-          ref={progressRef}
-          volume={volume}
-        />
+      {ready ? (
+        touchscreen ? (
+          <MobileControls
+            duration={duration}
+            fullScreen={fullScreen}
+            hls={hlsRef.current}
+            loaded={loaded}
+            muted={muted}
+            onQualityLevelChange={(level: number) => setQuality(level)}
+            onRateChange={(rate: number) => setRate(rate)}
+            played={played}
+            playedLock={playedLock}
+            playing={playing}
+            rate={rate}
+            rateLevels={rateLevels}
+            seekTo={playerRef.current?.seekTo}
+            setMuted={setMuted}
+            setPlayed={setPlayed}
+            setPlayedLock={setPlayedLock}
+            setPlaying={setPlaying}
+            toggleFullScreen={toggleFullScreen}
+          />
+        ) : (
+          <Bar
+            duration={duration}
+            fullScreen={fullScreen}
+            hls={hlsRef.current}
+            loaded={loaded}
+            muted={muted}
+            onQualityLevelChange={(level: number) => setQuality(level)}
+            onRateChange={(rate: number) => setRate(rate)}
+            played={played}
+            playedLock={playedLock}
+            playing={playing}
+            rate={rate}
+            rateLevels={rateLevels}
+            seekTo={playerRef.current?.seekTo}
+            setMuted={setMuted}
+            setPlayed={setPlayed}
+            setPlayedLock={setPlayedLock}
+            setPlaying={setPlaying}
+            setVolume={setVolume}
+            toggleFullScreen={toggleFullScreen}
+            volume={volume}
+          />
+        )
+      ) : (
+        <></>
       )}
     </div>
   );

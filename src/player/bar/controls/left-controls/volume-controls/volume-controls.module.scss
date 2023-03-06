@@ -9,16 +9,20 @@
 
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
-
-  &:hover {
-    width: 150px;
-
-    & > .volume_progress {
-      opacity: 1;
-    }
-  }
 }
 
 .volume_progress {
   opacity: 0;
+}
+
+@media (min-width: 769px) {
+  .volume {
+    &:hover {
+      width: 150px;
+
+      & > .volume_progress {
+        opacity: 1;
+      }
+    }
+  }
 }

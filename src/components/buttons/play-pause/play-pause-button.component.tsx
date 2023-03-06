@@ -1,9 +1,9 @@
 import React from 'react';
 
-import styles from './play-pause-button.module.scss';
-
 import { PauseIcon, PlayIcon } from '../../../icons';
 import { IconButton } from '../../icon-button';
+
+import styles from './play-pause-button.module.scss';
 
 type P = {
   playing: boolean;
