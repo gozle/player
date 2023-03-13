@@ -28,6 +28,16 @@
       &:hover {
         height: 0.5em;
       }
+
+      &.locked {
+        height: 0.25em;
+
+        cursor: default;
+
+        &:hover {
+          height: 0.25em;
+        }
+      }
     }
   }
 }

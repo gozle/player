@@ -9,7 +9,11 @@ type P = {
 };
 
 export const IconButton = ({ className = '', children, onClick }: P) => (
-  <button className={styles.button + ' ' + className} onClick={onClick}>
+  <button
+    className={styles.button + ' ' + className}
+    onClick={onClick}
+    onKeyDown={(e) => e.preventDefault()}
+  >
     {children}
   </button>
 );

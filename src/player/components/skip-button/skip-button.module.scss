@@ -1,0 +1,19 @@
+.button {
+  padding: 0.75em 1.25em;
+
+  background: black;
+  color: white;
+
+  font-weight: 700;
+
+  border: 1px solid gray;
+  outline: none;
+
+  cursor: pointer;
+
+  &:disabled {
+    background-color: darkgray;
+
+    cursor: not-allowed;
+  }
+}

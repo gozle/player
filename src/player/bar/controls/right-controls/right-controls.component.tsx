@@ -17,23 +17,26 @@ type P = {
   rateLevels: { name: string; value: number }[];
 };
 
-export const RightControls = React.memo((props: P) => (
-  <div className={styles.container}>
-    <GozleLogo />
-    {props.hls && (
-      <Settings
-        className={styles.settings}
-        hls={props.hls}
-        onQualityLevelChange={props.onQualityLevelChange}
-        onRateChange={props.onRateChange}
-        rate={props.rate}
-        rateLevels={props.rateLevels}
+export const RightControls = React.memo(
+  React.forwardRef<{ settingsOpen: boolean }, P>((props, ref) => (
+    <div className={styles.container}>
+      <GozleLogo />
+      {props.hls && (
+        <Settings
+          className={styles.settings}
+          hls={props.hls}
+          onQualityLevelChange={props.onQualityLevelChange}
+          onRateChange={props.onRateChange}
+          rate={props.rate}
+          rateLevels={props.rateLevels}
+          ref={ref}
+        />
+      )}
+      <FullScreenButton
+        fullScreen={props.fullScreen}
+        onClick={props.onFullScreenClick}
       />
-    )}
-    <FullScreenButton
-      fullScreen={props.fullScreen}
-      onClick={props.onFullScreenClick}
-    />
-  </div>
-));
+    </div>
+  )),
+);
 RightControls.displayName = 'RightControls';

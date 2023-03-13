@@ -1,9 +1,12 @@
 import type Hls from 'hls.js';
 import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
 
+import { AdLabel } from '../components/ad-label';
+import { SkipButton } from '../components/skip-button';
+import { TimeProgress } from '../components/time-progress';
+
 import styles from './bar.module.scss';
 import { Controls } from './controls';
-import { TimeProgress } from '../components/time-progress';
 
 type P = {
   duration: number;
@@ -26,13 +29,23 @@ type P = {
   setVolume: Dispatch<SetStateAction<number>>;
   toggleFullScreen: () => void;
   volume: number;
-};
+} & (
+  | {
+      landingUrl?: string;
+      onSkip: () => void;
+      type: 'ad';
+    }
+  | {
+      type: 'video';
+    }
+);
 
 export const Bar = React.memo((props: P) => {
   const [volumeLock, setVolumeLock] = useState<boolean>(false);
 
+  const settingsRef = useRef<{ settingsOpen: boolean } | null>(null);
   const timeRef = useRef<HTMLDivElement>(null);
-  const volumeRef = useRef<HTMLDivElement>(null);
+  const volumeRef = useRef<HTMLDivElement | null>(null);
 
   const calculateAndSetPlayed = (pageX: number) => {
     if (timeRef.current) {
@@ -67,7 +80,7 @@ export const Bar = React.memo((props: P) => {
         togglePlayPause();
         break;
       case 'ArrowRight': {
-        if (!live) {
+        if (!live && props.type !== 'ad') {
           props.setPlayedLock(true);
           props.setPlayed((prev) => prev + 5 / props.duration);
         }
@@ -75,7 +88,7 @@ export const Bar = React.memo((props: P) => {
       }
       case 'ArrowLeft':
         {
-          if (!live) {
+          if (!live && props.type !== 'ad') {
             props.setPlayedLock(true);
             props.setPlayed((prev) => prev - 5 / props.duration);
           }
@@ -135,6 +148,11 @@ export const Bar = React.memo((props: P) => {
     }
   };
 
+  const handleSkipClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (props.type === 'ad') props.onSkip();
+  };
+
   const handleTimePointerDown = (event: React.PointerEvent) => {
     event.preventDefault();
     props.setPlayedLock(true);
@@ -163,6 +181,8 @@ export const Bar = React.memo((props: P) => {
       className={styles.bar_container}
       onClick={() => {
         if (!props.playedLock) togglePlayPause();
+        if (props.type === 'ad' && props.landingUrl && props.playing)
+          window.open(props.landingUrl, '_blank')?.focus();
       }}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
@@ -171,10 +191,23 @@ export const Bar = React.memo((props: P) => {
       onPointerUp={handlePointerUp}
       tabIndex={0}
     >
+      {props.type === 'ad' && (
+        <>
+          <div className={styles.top_bar} onClick={(e) => e.stopPropagation()}>
+            <AdLabel />
+          </div>
+          <SkipButton
+            className={styles.skip_button}
+            onClick={handleSkipClick}
+            played={props.played * props.duration}
+          />
+        </>
+      )}
       <div className={styles.bar} onClick={(e) => e.stopPropagation()}>
         {!live ? (
           <TimeProgress
             loaded={props.loaded}
+            locked={props.type === 'ad'}
             onPointerDown={handleTimePointerDown}
             progress={props.played}
             ref={timeRef}
@@ -183,6 +216,7 @@ export const Bar = React.memo((props: P) => {
           <></>
         )}
         <Controls
+          duration={props.duration}
           fullScreen={props.fullScreen}
           hls={props.hls}
           live={live}
@@ -193,10 +227,16 @@ export const Bar = React.memo((props: P) => {
           onRateChange={props.onRateChange}
           onVolumeButtonClick={toggleMuted}
           onVolumePointerDown={handleVolumePointerDown}
+          played={props.played}
           playing={props.playing}
           rate={props.rate}
           rateLevels={props.rateLevels}
-          ref={volumeRef}
+          ref={(instance) => {
+            if (instance) {
+              if (instance.volume) volumeRef.current = instance.volume;
+              if (instance.settings) settingsRef.current = instance.settings;
+            }
+          }}
           volume={props.volume}
         />
       </div>

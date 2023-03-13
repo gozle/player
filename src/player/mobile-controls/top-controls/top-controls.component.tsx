@@ -13,18 +13,21 @@ type P = {
   rateLevels: { name: string; value: number }[];
 };
 
-export const TopControls = React.memo((props: P) => (
-  <div className={styles.container}>
-    {props.hls && (
-      <Settings
-        className={styles.settings}
-        hls={props.hls}
-        onQualityLevelChange={props.onQualityLevelChange}
-        onRateChange={props.onRateChange}
-        rate={props.rate}
-        rateLevels={props.rateLevels}
-      />
-    )}
-  </div>
-));
+export const TopControls = React.memo(
+  React.forwardRef<{ settingsOpen: boolean }, P>((props, ref) => (
+    <div className={styles.container}>
+      {props.hls && (
+        <Settings
+          className={styles.settings}
+          hls={props.hls}
+          onQualityLevelChange={props.onQualityLevelChange}
+          onRateChange={props.onRateChange}
+          rate={props.rate}
+          rateLevels={props.rateLevels}
+          ref={ref}
+        />
+      )}
+    </div>
+  )),
+);
 TopControls.displayName = 'TopControls';

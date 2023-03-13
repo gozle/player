@@ -7,6 +7,8 @@ import React, {
   useState,
 } from 'react';
 
+import { AdLabel } from '../components/ad-label';
+import { SkipButton } from '../components/skip-button';
 import { TimeProgress } from '../components/time-progress';
 
 import { BottomControls } from './bottom-controls';
@@ -33,11 +35,21 @@ type P = {
   setPlayedLock: Dispatch<SetStateAction<boolean>>;
   setPlaying: Dispatch<SetStateAction<boolean>>;
   toggleFullScreen: () => void;
-};
+} & (
+  | {
+      landingUrl?: string;
+      onSkip: () => void;
+      type: 'ad';
+    }
+  | {
+      type: 'video';
+    }
+);
 
 export const MobileControls = React.memo((props: P) => {
   const [showControls, setShowControls] = useState<boolean>(false);
 
+  const settingsRef = useRef<{ settingsOpen: boolean } | null>(null);
   const timeRef = useRef<HTMLDivElement>(null);
 
   const calculateAndSetPlayed = (pageX: number) => {
@@ -79,6 +91,11 @@ export const MobileControls = React.memo((props: P) => {
     }
   };
 
+  const handleSkipClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (props.type === 'ad') props.onSkip();
+  };
+
   const handleTimePointerDown = (event: React.PointerEvent) => {
     event.preventDefault();
     props.setPlayedLock(true);
@@ -98,7 +115,8 @@ export const MobileControls = React.memo((props: P) => {
     let timeout: NodeJS.Timeout | undefined = undefined;
     if (showControls && props.playing)
       timeout = setTimeout(() => {
-        if (isMounted) setShowControls(false);
+        if (isMounted && !settingsRef.current?.settingsOpen)
+          setShowControls(false);
       }, 3000);
     return () => {
       isMounted = false;
@@ -116,60 +134,80 @@ export const MobileControls = React.memo((props: P) => {
   }, []);
 
   return (
-    <div
-      className={styles.bar_container}
-      onClick={(e) => {
-        e.stopPropagation();
-        setShowControls(true);
-      }}
-      onPointerLeave={handlePointerUp}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      tabIndex={0}
-    >
+    <>
       <div
-        className={
-          styles.bar_inner_container +
-          (showControls ? ' ' + styles.visible : '')
-        }
+        className={styles.bar_container}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowControls(true);
+          if (props.type === 'ad' && props.landingUrl && props.playing) {
+            togglePlayPause();
+            window.open(props.landingUrl, '_blank')?.focus();
+          }
+        }}
+        onPointerLeave={handlePointerUp}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        tabIndex={0}
       >
-        <div className={styles.top_bar}>
-          <TopControls
-            hls={props.hls}
-            onQualityLevelChange={props.onQualityLevelChange}
-            onRateChange={props.onRateChange}
-            rate={props.rate}
-            rateLevels={props.rateLevels}
-          />
-        </div>
-        <div className={styles.cental_bar}>
-          <CentralControls
-            onPlayPauseButtonClick={togglePlayPause}
-            playing={props.playing}
-          />
-        </div>
-        <div className={styles.bottom_bar}>
-          <BottomControls
-            duration={props.duration}
-            fullScreen={props.fullScreen}
-            hls={props.hls}
-            live={live}
-            onFullScreenClick={props.toggleFullScreen}
-            played={props.played}
-          />
-          {!live ? (
-            <TimeProgress
-              loaded={props.loaded}
-              onPointerDown={handleTimePointerDown}
-              progress={props.played}
-              ref={timeRef}
+        <div
+          className={
+            styles.bar_inner_container +
+            (showControls ? ' ' + styles.visible : '')
+          }
+        >
+          <div className={styles.top_bar}>
+            <TopControls
+              hls={props.hls}
+              onQualityLevelChange={props.onQualityLevelChange}
+              onRateChange={props.onRateChange}
+              rate={props.rate}
+              rateLevels={props.rateLevels}
+              ref={settingsRef}
             />
-          ) : (
-            <></>
-          )}
+          </div>
+          <div className={styles.cental_bar}>
+            <CentralControls
+              onPlayPauseButtonClick={(e) => {
+                e.stopPropagation();
+                togglePlayPause();
+              }}
+              playing={props.playing}
+            />
+          </div>
+          <div className={styles.bottom_bar}>
+            <BottomControls
+              duration={props.duration}
+              fullScreen={props.fullScreen}
+              hls={props.hls}
+              live={live}
+              onFullScreenClick={props.toggleFullScreen}
+              played={props.played}
+            />
+            {!live ? (
+              <TimeProgress
+                loaded={props.loaded}
+                locked={props.type === 'ad'}
+                onPointerDown={handleTimePointerDown}
+                progress={props.played}
+                ref={timeRef}
+              />
+            ) : (
+              <></>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      {props.type === 'ad' && (
+        <div className={styles.ad_controls}>
+          <AdLabel />
+          <SkipButton
+            onClick={handleSkipClick}
+            played={props.played * props.duration}
+          />
+        </div>
+      )}
+    </>
   );
 });
 MobileControls.displayName = 'MobileControls';

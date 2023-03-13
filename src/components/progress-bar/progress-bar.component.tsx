@@ -6,6 +6,7 @@ type P = {
   className?: string;
   progress: number;
   loaded?: number;
+  locked?: boolean;
   onPointerDown?: (event: React.PointerEvent<HTMLDivElement>) => void;
   onPointerMove?: (event: React.PointerEvent<HTMLDivElement>) => void;
   onPointerUp?: (event: React.PointerEvent<HTMLDivElement>) => void;
@@ -16,9 +17,9 @@ export const ProgressBar = React.forwardRef<HTMLDivElement, P>(
     <div
       ref={ref}
       className={styles.area + ' ' + className}
-      onPointerDown={props.onPointerDown}
-      onPointerMove={props.onPointerMove}
-      onPointerUp={props.onPointerUp}
+      onPointerDown={props.locked ? undefined : props.onPointerDown}
+      onPointerMove={props.locked ? undefined : props.onPointerMove}
+      onPointerUp={props.locked ? undefined : props.onPointerUp}
     >
       {props.loaded && (
         <div
@@ -30,10 +31,12 @@ export const ProgressBar = React.forwardRef<HTMLDivElement, P>(
         className={styles.played_area}
         style={{ width: `${props.progress * 100}%` }}
       />
-      <div
-        className={styles.pointer}
-        style={{ left: `${props.progress * 100}%` }}
-      />
+      {!props.locked && (
+        <div
+          className={styles.pointer}
+          style={{ left: `${props.progress * 100}%` }}
+        />
+      )}
     </div>
   ),
 );

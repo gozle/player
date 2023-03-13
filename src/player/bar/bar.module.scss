@@ -14,6 +14,25 @@
   }
 }
 
+.top_bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  cursor: default;
+
+  background-color: rgba(0, 0, 0, 0.6);
+
+  padding: 0.5em;
+}
+
+.skip_button {
+  position: absolute;
+  bottom: 6.5em;
+  right: 0.5em;
+}
+
 .bar {
   @include webkitFlex(column, stretch, start);
   @include flex(column, stretch, flex-start);

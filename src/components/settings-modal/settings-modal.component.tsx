@@ -1,6 +1,5 @@
 import type Hls from 'hls.js';
 import React, { useMemo } from 'react';
-import { createPortal } from 'react-dom';
 
 import styles from './settings-modal.module.scss';
 
@@ -21,11 +20,6 @@ export const SettingsModal = ({
   rate,
   rateLevels,
 }: P) => {
-  const modalContainer = useMemo(
-    () => document.querySelector('#gozle-player-modal'),
-    [],
-  );
-
   const { handleQualitySelect, handleRateSelect } = useMemo(
     () => ({
       handleQualitySelect: (event: React.ChangeEvent<HTMLSelectElement>) =>
@@ -38,46 +32,41 @@ export const SettingsModal = ({
 
   const quality = hls.autoLevelEnabled ? -1 : hls.currentLevel;
 
-  return modalContainer ? (
-    createPortal(
-      <div className={styles.modal} onClick={onCloseModal}>
-        <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
-          <div className={styles.title}>Настройки воспроизведения</div>
-          <div className={styles.row}>
-            <div className={styles.label}>Скорость</div>
-            <div className={styles.value}>
-              <select value={rate} onChange={handleRateSelect}>
-                {rateLevels.map((el, i) => (
-                  <option key={i} value={el.value}>
-                    {el.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className={styles.row}>
-            <div className={styles.label}>Качество</div>
-            <div className={styles.value}>
-              <select value={quality} onChange={handleQualitySelect}>
-                <option key={-1} value={-1}>
-                  Auto
+  return (
+    <div className={styles.modal} onClick={onCloseModal}>
+      <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.title}>Настройки воспроизведения</div>
+        <div className={styles.row}>
+          <div className={styles.label}>Скорость</div>
+          <div className={styles.value}>
+            <select value={rate} onChange={handleRateSelect}>
+              {rateLevels.map((el, i) => (
+                <option key={i} value={el.value}>
+                  {el.name}
                 </option>
-                {hls.levels.map((el, i) => (
-                  <option key={i} value={i}>
-                    {el.name || el.height}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className={styles.button_container}>
-            <button onClick={onCloseModal}>Ок</button>
+              ))}
+            </select>
           </div>
         </div>
-      </div>,
-      modalContainer,
-    )
-  ) : (
-    <></>
+        <div className={styles.row}>
+          <div className={styles.label}>Качество</div>
+          <div className={styles.value}>
+            <select value={quality} onChange={handleQualitySelect}>
+              <option key={-1} value={-1}>
+                Auto
+              </option>
+              {hls.levels.map((el, i) => (
+                <option key={i} value={i}>
+                  {el.name || el.height}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className={styles.button_container}>
+          <button onClick={onCloseModal}>Ок</button>
+        </div>
+      </div>
+    </div>
   );
 };

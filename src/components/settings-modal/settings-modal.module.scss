@@ -15,12 +15,17 @@
   overflow: hidden;
 
   font-size: 1.25em;
+
+  z-index: 4;
 }
 
 .popup {
   width: 18em;
+  max-width: 70%;
   padding: 0.75em;
   border-radius: 0.5em;
+
+  font-size: 0.8em;
 
   background-color: white;
 }
@@ -62,5 +67,11 @@
     background: transparent;
     margin-left: auto;
     padding: 0.5em 1em;
+  }
+}
+
+@media (min-width: 480px) {
+  .popup {
+    font-size: 1em;
   }
 }

@@ -69,3 +69,15 @@
 
   cursor: default;
 }
+
+.ad_controls {
+  @include webkitFlex(row, flex-start, justify);
+  @include flex(row, flex-start, space-between);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  padding: 0.5em;
+}

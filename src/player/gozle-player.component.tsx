@@ -12,7 +12,16 @@ import { MobileControls } from './mobile-controls';
 
 type P = {
   url: string;
-};
+} & (
+  | {
+      landingUrl?: string;
+      onSkip: () => void;
+      type: 'ad';
+    }
+  | {
+      type: 'video';
+    }
+);
 
 const rateLevels = [
   { name: '0.25', value: 0.25 },
@@ -25,7 +34,7 @@ const rateLevels = [
   { name: '2', value: 2 },
 ];
 
-export const GozlePlayer = ({ url }: P) => {
+export const GozlePlayer = ({ url, ...props }: P) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const playerRef = useRef<ReactPlayer>(null);
@@ -50,6 +59,10 @@ export const GozlePlayer = ({ url }: P) => {
   const touchscreen = useTouchscreen();
 
   const handleDuration = (duration: number) => setDuration(duration);
+
+  const handleEnded = () => {
+    if (props.type === 'ad') props.onSkip();
+  };
 
   const handleProgress = ({ loaded, played }: OnProgressProps) => {
     setLoaded(loaded);
@@ -107,6 +120,7 @@ export const GozlePlayer = ({ url }: P) => {
         height="100%"
         muted={muted}
         onDuration={handleDuration}
+        onEnded={handleEnded}
         onPause={() => setPlaying(false)}
         onProgress={handleProgress}
         onReady={handleReady}
@@ -138,6 +152,7 @@ export const GozlePlayer = ({ url }: P) => {
             setPlayedLock={setPlayedLock}
             setPlaying={setPlaying}
             toggleFullScreen={toggleFullScreen}
+            {...props}
           />
         ) : (
           <Bar
@@ -161,6 +176,7 @@ export const GozlePlayer = ({ url }: P) => {
             setVolume={setVolume}
             toggleFullScreen={toggleFullScreen}
             volume={volume}
+            {...props}
           />
         )
       ) : (
@@ -169,3 +185,5 @@ export const GozlePlayer = ({ url }: P) => {
     </div>
   );
 };
+
+export default GozlePlayer;
