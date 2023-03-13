@@ -8,7 +8,8 @@ import styles from './time-progress.module.scss';
 type P = {
   loaded: number;
   locked: boolean;
-  onPointerDown: (event: React.PointerEvent<HTMLDivElement>) => void;
+  onTouchStart?: (event: React.TouchEvent<HTMLDivElement>) => void;
+  onPointerDown?: (event: React.PointerEvent<HTMLDivElement>) => void;
   progress: number;
 };
 
@@ -24,6 +25,7 @@ export const TimeProgress = React.memo(
             (touchscreen ? '' : ' ' + styles.no_touch) +
             (props.locked ? ' ' + styles.locked : '')
           }
+          innerClassName={styles.progress_inner}
           ref={ref}
           {...props}
         />

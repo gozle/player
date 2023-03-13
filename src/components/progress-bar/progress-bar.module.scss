@@ -1,7 +1,23 @@
 .area {
   position: relative;
-  height: 0.25em;
+}
+
+.area_inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+
   background-color: rgba(246, 246, 246, 0.3);
+
+  height: 0.25em;
+
   cursor: pointer;
 }
 

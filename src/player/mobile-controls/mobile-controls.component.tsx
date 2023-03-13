@@ -64,30 +64,15 @@ export const MobileControls = React.memo((props: P) => {
     }
   };
 
-  const handlePointerMove = (event: React.PointerEvent) => {
-    if (props.playedLock) calculateAndSetPlayed(event.pageX);
+  const handleTouchMove = (event: React.TouchEvent) => {
+    if (props.playedLock) calculateAndSetPlayed(event.touches[0].pageX);
   };
 
-  const handlePointerUp = (event?: React.PointerEvent) => {
+  const handleTouchEnd = () => {
     if (props.playedLock) {
       props.seekTo?.(props.played, 'fraction');
       props.setPlayedLock(false);
       props.setPlaying(true);
-
-      // Cancel click event after
-      if (event) {
-        const captureClick = (e: MouseEvent) => {
-          e.stopPropagation(); // Stop the click from being propagated.
-          window.removeEventListener('click', captureClick, true); // cleanup
-        };
-
-        window.addEventListener(
-          'click',
-          captureClick,
-          true, // <-- This registeres this listener for the capture
-          //     phase instead of the bubbling phase!
-        );
-      }
     }
   };
 
@@ -96,10 +81,10 @@ export const MobileControls = React.memo((props: P) => {
     if (props.type === 'ad') props.onSkip();
   };
 
-  const handleTimePointerDown = (event: React.PointerEvent) => {
+  const handleTimeTouchStart = (event: React.TouchEvent) => {
     event.preventDefault();
     props.setPlayedLock(true);
-    calculateAndSetPlayed(event.pageX);
+    calculateAndSetPlayed(event.touches[0].pageX);
   };
 
   const togglePlayPause = () => props.setPlaying((prev) => !prev);
@@ -145,9 +130,8 @@ export const MobileControls = React.memo((props: P) => {
             window.open(props.landingUrl, '_blank')?.focus();
           }
         }}
-        onPointerLeave={handlePointerUp}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
+        onTouchEnd={handleTouchEnd}
+        onTouchMove={handleTouchMove}
         tabIndex={0}
       >
         <div
@@ -188,7 +172,7 @@ export const MobileControls = React.memo((props: P) => {
               <TimeProgress
                 loaded={props.loaded}
                 locked={props.type === 'ad'}
-                onPointerDown={handleTimePointerDown}
+                onTouchStart={handleTimeTouchStart}
                 progress={props.played}
                 ref={timeRef}
               />

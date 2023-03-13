@@ -1,40 +1,39 @@
 .container {
   position: relative;
-  height: 0.5em;
   width: calc(100% - 1em);
   margin: 0 0.5em 1em;
 }
 
 .progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
+  height: 1em;
+}
 
+.progress_inner {
   height: 0.5em;
-
-  -webkit-transform: translateY(-50%);
-  transform: translateY(-50%);
-
-  -webkit-transition: all 0.2s ease;
-  transition: all 0.2s ease;
 }
 
 @media (min-width: 769px) {
+  .container {
+    margin: 0.5em 0.5em 0;
+  }
+
   .progress {
     &.no_touch {
-      height: 0.25em;
+      & > .progress_inner {
+        height: 0.25em;
+      }
 
-      &:hover {
+      &:hover > .progress_inner {
         height: 0.5em;
       }
 
       &.locked {
-        height: 0.25em;
+        .progress_inner {
+          height: 0.25em;
+          cursor: default;
+        }
 
-        cursor: default;
-
-        &:hover {
+        &:hover > .progress_inner {
           height: 0.25em;
         }
       }
