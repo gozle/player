@@ -10,8 +10,8 @@ type P = {
   progress: number;
 };
 
-export const VolumeProgress = React.memo(
-  React.forwardRef<HTMLDivElement, P>((props, ref) => (
+export const VolumeProgress = React.forwardRef<HTMLDivElement, P>(
+  (props, ref) => (
     <div className={styles.container + ' ' + (props.className || '')}>
       <ProgressBar
         className={styles.progress}
@@ -20,6 +20,6 @@ export const VolumeProgress = React.memo(
         ref={ref}
       />
     </div>
-  )),
+  ),
 );
 VolumeProgress.displayName = 'VolumeProgress';

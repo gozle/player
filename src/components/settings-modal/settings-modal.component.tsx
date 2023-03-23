@@ -1,39 +1,44 @@
-import type Hls from 'hls.js';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
+
+import { GozlePlayerContext } from '../../player/gozle-player.context';
 
 import styles from './settings-modal.module.scss';
 
 type P = {
-  hls: Hls;
-  onCloseModal: (event: React.MouseEvent) => void;
-  onQualityLevelChange: (level: number) => void;
-  onRateChange: (rate: number) => void;
-  rate: number;
-  rateLevels: { name: string; value: number }[];
+  onCloseModal: () => void;
 };
 
-export const SettingsModal = ({
-  hls,
-  onCloseModal,
-  onQualityLevelChange,
-  onRateChange,
-  rate,
-  rateLevels,
-}: P) => {
+export const SettingsModal = ({ onCloseModal }: P) => {
+  const {
+    autoLevelEnabled,
+    quality,
+    qualityLevels,
+    rate,
+    rateLevels,
+    setQuality,
+    setRate,
+  } = useContext(GozlePlayerContext);
+
   const { handleQualitySelect, handleRateSelect } = useMemo(
     () => ({
       handleQualitySelect: (event: React.ChangeEvent<HTMLSelectElement>) =>
-        onQualityLevelChange(parseInt(event.target.value)),
+        setQuality(parseInt(event.target.value)),
       handleRateSelect: (event: React.ChangeEvent<HTMLSelectElement>) =>
-        onRateChange(Number(event.target.value)),
+        setRate(Number(event.target.value)),
     }),
-    [onQualityLevelChange, onRateChange],
+    [setQuality, setRate],
   );
 
-  const quality = hls.autoLevelEnabled ? -1 : hls.currentLevel;
+  const selectedQuality = autoLevelEnabled ? -1 : quality;
 
   return (
-    <div className={styles.modal} onClick={onCloseModal}>
+    <div
+      className={styles.modal}
+      onClick={(e) => {
+        e.stopPropagation();
+        onCloseModal();
+      }}
+    >
       <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
         <div className={styles.title}>Настройки воспроизведения</div>
         <div className={styles.row}>
@@ -51,11 +56,11 @@ export const SettingsModal = ({
         <div className={styles.row}>
           <div className={styles.label}>Качество</div>
           <div className={styles.value}>
-            <select value={quality} onChange={handleQualitySelect}>
+            <select value={selectedQuality} onChange={handleQualitySelect}>
               <option key={-1} value={-1}>
                 Auto
               </option>
-              {hls.levels.map((el, i) => (
+              {qualityLevels.map((el, i) => (
                 <option key={i} value={i}>
                   {el.name || el.height}
                 </option>

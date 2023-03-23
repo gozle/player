@@ -1,5 +1,5 @@
 export const formatDuration = (duration: number) => {
-  let dur = duration;
+  let dur = Math.round(duration);
   const hh = Math.floor(dur / 3600);
   dur -= hh * 3600;
   const mm = Math.floor(dur / 60);

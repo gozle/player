@@ -1,42 +1,29 @@
-import type Hls from 'hls.js';
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { FullScreenButton } from '../../../../components/buttons';
+import { GozleLogo } from '../../../../components/gozle-logo';
 import { Settings } from '../../../../components/settings';
-import { GozleLogo } from '../../../components/gozle-logo';
+import { GozlePlayerContext } from '../../../gozle-player.context';
 
 import styles from './right-controls.module.scss';
 
-type P = {
-  fullScreen: boolean;
-  hls: Hls | null;
-  onFullScreenClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onQualityLevelChange: (level: number) => void;
-  onRateChange: (rate: number) => void;
-  rate: number;
-  rateLevels: { name: string; value: number }[];
-};
+export const RightControls = React.forwardRef<{ settingsOpen: boolean }, {}>(
+  (_, ref) => {
+    const { fullScreen, toggleFullScreen } = useContext(GozlePlayerContext);
 
-export const RightControls = React.memo(
-  React.forwardRef<{ settingsOpen: boolean }, P>((props, ref) => (
-    <div className={styles.container}>
-      <GozleLogo />
-      {props.hls && (
-        <Settings
-          className={styles.settings}
-          hls={props.hls}
-          onQualityLevelChange={props.onQualityLevelChange}
-          onRateChange={props.onRateChange}
-          rate={props.rate}
-          rateLevels={props.rateLevels}
-          ref={ref}
+    return (
+      <div className={styles.container}>
+        <GozleLogo />
+        <Settings className={styles.settings} ref={ref} />
+        <FullScreenButton
+          fullScreen={fullScreen}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFullScreen();
+          }}
         />
-      )}
-      <FullScreenButton
-        fullScreen={props.fullScreen}
-        onClick={props.onFullScreenClick}
-      />
-    </div>
-  )),
+      </div>
+    );
+  },
 );
 RightControls.displayName = 'RightControls';

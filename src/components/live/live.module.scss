@@ -1,4 +1,4 @@
-@import '../../../scss/mixins.scss';
+@import '../../scss/mixins.scss';
 
 .container {
   @include webkitFlex(row, center, center);
@@ -17,4 +17,5 @@
 
 .label {
   color: white;
+  font-size: 0.8em;
 }

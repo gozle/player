@@ -1,28 +1,16 @@
-import type Hls from 'hls.js';
 import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 
-import { useTouchscreen } from '../../hooks/touchscreen.hook';
+import { useTouchscreen } from '../../hooks';
 import { SettingsButton } from '../buttons';
 import { SettingsModal } from '../settings-modal';
 import { SettingsPopup } from '../settings-popup';
 
 type P = {
   className?: string;
-
-  hls: Hls;
-
-  onQualityLevelChange: (level: number) => void;
-  onRateChange: (rate: number) => void;
-
-  rate: number;
-  rateLevels: { name: string; value: number }[];
 };
 
 export const Settings = React.forwardRef<{ settingsOpen: boolean }, P>(
-  (
-    { className, hls, onQualityLevelChange, onRateChange, rate, rateLevels },
-    outerRef,
-  ) => {
+  ({ className }, outerRef) => {
     const ref = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState<boolean>(false);
 
@@ -43,25 +31,9 @@ export const Settings = React.forwardRef<{ settingsOpen: boolean }, P>(
       <div ref={ref} className={className}>
         {open ? (
           touchscreen ? (
-            <SettingsModal
-              hls={hls}
-              onCloseModal={(e) => {
-                e.stopPropagation();
-                setOpen(false);
-              }}
-              onQualityLevelChange={onQualityLevelChange}
-              onRateChange={onRateChange}
-              rate={rate}
-              rateLevels={rateLevels}
-            />
+            <SettingsModal onCloseModal={() => setOpen(false)} />
           ) : (
-            <SettingsPopup
-              hls={hls}
-              onQualityLevelChange={onQualityLevelChange}
-              onRateChange={onRateChange}
-              rate={rate}
-              rateLevels={rateLevels}
-            />
+            <SettingsPopup />
           )
         ) : (
           <></>

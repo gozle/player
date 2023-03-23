@@ -1,20 +1,21 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { PlayPauseButton } from '../../../components/buttons';
+import { GozlePlayerContext } from '../../gozle-player.context';
 
 import styles from './central-controls.module.scss';
 
-type P = {
-  onPlayPauseButtonClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  playing: boolean;
-};
+export const CentralControls = () => {
+  const { playing, setPlaying } = useContext(GozlePlayerContext);
 
-export const CentralControls = React.memo((props: P) => (
-  <div className={styles.container}>
-    <PlayPauseButton
-      onClick={props.onPlayPauseButtonClick}
-      playing={props.playing}
-    />
-  </div>
-));
-CentralControls.displayName = 'CentralControls';
+  const handlePlayPauseButtonClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setPlaying((prev) => !prev);
+  };
+
+  return (
+    <div className={styles.container}>
+      <PlayPauseButton onClick={handlePlayPauseButtonClick} playing={playing} />
+    </div>
+  );
+};

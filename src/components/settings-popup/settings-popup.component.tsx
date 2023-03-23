@@ -1,49 +1,46 @@
-import type Hls from 'hls.js';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 
 import { ArrowRightIcon } from '../../icons';
+import { GozlePlayerContext } from '../../player/gozle-player.context';
 
 import { QualitySelectScreen } from './quality-select-screen';
 import { RateSelectScreen } from './rate-select-screen';
 import styles from './settings-popup.module.scss';
 
-type P = {
-  hls: Hls;
-  onQualityLevelChange: (level: number) => void;
-  onRateChange: (rate: number) => void;
-  rate: number;
-  rateLevels: { name: string; value: number }[];
-};
-
-export const SettingsPopup = ({
-  hls,
-  onQualityLevelChange,
-  onRateChange,
-  rate,
-  rateLevels,
-}: P) => {
+export const SettingsPopup = () => {
   const [view, setView] = useState<'main' | 'quality' | 'rate'>('main');
 
-  const handleBackClick = useCallback(() => setView('main'), []);
+  const {
+    autoLevelEnabled,
+    autoQualityName,
+    quality,
+    qualityLevels,
+    rate,
+    rateLevels,
+    setQuality,
+    setRate,
+  } = useContext(GozlePlayerContext);
+
+  const handleBackClick = () => setView('main');
 
   const { handleQualityLevelClick, handleRateLevelClick } = useMemo(
     () => ({
       handleQualityLevelClick: (event: React.MouseEvent) => {
         const index = event.currentTarget.getAttribute('data-index');
         if (index) {
-          onQualityLevelChange(parseInt(index));
+          setQuality(parseInt(index));
           setView('main');
         }
       },
       handleRateLevelClick: (event: React.MouseEvent) => {
         const value = event.currentTarget.getAttribute('data-value');
         if (value) {
-          onRateChange(Number(value));
+          setRate(Number(value));
           setView('main');
         }
       },
     }),
-    [onQualityLevelChange, onRateChange],
+    [setQuality, setRate],
   );
 
   return (
@@ -73,15 +70,11 @@ export const SettingsPopup = ({
           <div className={styles.label}>Качество</div>
           <div className={styles.value}>
             <span>
-              {hls.currentLevel === -1
-                ? 'Auto'
-                : hls.autoLevelEnabled
-                ? `Auto (${
-                    hls.levels[hls.currentLevel].name ||
-                    hls.levels[hls.currentLevel].height
-                  })`
-                : hls.levels[hls.currentLevel].name ||
-                  hls.levels[hls.currentLevel].height}
+              {quality === -1
+                ? autoQualityName
+                  ? `Auto (${autoQualityName})`
+                  : 'Auto'
+                : qualityLevels[quality].name || qualityLevels[quality].height}
             </span>
             <div className={styles.icon}>
               <ArrowRightIcon />
@@ -91,10 +84,7 @@ export const SettingsPopup = ({
       </div>
       {view === 'quality' && (
         <QualitySelectScreen
-          autoLevelEnabled={hls.autoLevelEnabled}
           className={styles.screen}
-          currentLevel={hls.currentLevel}
-          levels={hls.levels}
           onBackClick={handleBackClick}
           onLevelClick={handleQualityLevelClick}
           rowClassName={styles.clickable}
@@ -103,8 +93,6 @@ export const SettingsPopup = ({
       {view === 'rate' && (
         <RateSelectScreen
           className={styles.screen}
-          currentRate={rate}
-          levels={rateLevels}
           onBackClick={handleBackClick}
           onLevelClick={handleRateLevelClick}
           rowClassName={styles.clickable}

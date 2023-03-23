@@ -1,22 +1,22 @@
-import type Hls from 'hls.js';
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { FullScreenButton } from '../../../../components/buttons';
+import { GozlePlayerContext } from '../../../gozle-player.context';
 
 import styles from './right-controls.module.scss';
 
-type P = {
-  fullScreen: boolean;
-  hls: Hls | null;
-  onFullScreenClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-};
+export const RightControls = () => {
+  const { fullScreen, toggleFullScreen } = useContext(GozlePlayerContext);
 
-export const RightControls = React.memo((props: P) => (
-  <div className={styles.container}>
-    <FullScreenButton
-      fullScreen={props.fullScreen}
-      onClick={props.onFullScreenClick}
-    />
-  </div>
-));
-RightControls.displayName = 'RightControls';
+  return (
+    <div className={styles.container}>
+      <FullScreenButton
+        fullScreen={fullScreen}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleFullScreen();
+        }}
+      />
+    </div>
+  );
+};
