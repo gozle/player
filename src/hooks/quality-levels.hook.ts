@@ -28,29 +28,30 @@ export const useQualityLevels = (url: string) => {
 
   useEffect(() => {
     let mounted = true;
-    fetch(url).then(async (res) => {
-      const parser = new Parser();
+    fetch(url)
+      .then(async (res) => {
+        const parser = new Parser();
 
-      parser.push(await res.text());
-      parser.end();
+        parser.push(await res.text());
+        parser.end();
 
-      if (mounted) {
-        const levels: QualityLevel[] = [];
-        console.log(parser.manifest);
-        parser.manifest.playlists.forEach((el: Playlist) => {
-          if (el.attributes.RESOLUTION)
-            levels.push({
-              height: el.attributes.RESOLUTION.height,
-              name: el.attributes.NAME
-                ? el.attributes.NAME
-                : String(el.attributes.RESOLUTION.height),
-              url: el.uri,
-              width: el.attributes.RESOLUTION.width,
-            });
-        });
-        setLevels(levels.sort((a, b) => (a.height > b.height ? -1 : 1)));
-      }
-    });
+        if (mounted) {
+          const levels: QualityLevel[] = [];
+          parser.manifest.playlists.forEach((el: Playlist) => {
+            if (el.attributes.RESOLUTION)
+              levels.push({
+                height: el.attributes.RESOLUTION.height,
+                name: el.attributes.NAME
+                  ? el.attributes.NAME
+                  : String(el.attributes.RESOLUTION.height),
+                url: el.uri,
+                width: el.attributes.RESOLUTION.width,
+              });
+          });
+          setLevels(levels.sort((a, b) => (a.height > b.height ? -1 : 1)));
+        }
+      })
+      .catch((err) => err);
 
     return () => {
       mounted = false;
