@@ -156,6 +156,13 @@ export const GozlePlayer = ({ url, ...props }: P) => {
   }, [url, quality, qualityLevels]);
 
   useEffect(() => {
+    if (url) {
+      setPlayed(0);
+      setPlayedSeconds(0);
+    }
+  }, [url]);
+
+  useEffect(() => {
     setAutoLevelEnabled(!qualityUrl);
   }, [qualityUrl]);
 
