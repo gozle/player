@@ -3,8 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { OnProgressProps } from 'react-player/base';
 import ReactPlayer from 'react-player/file';
 import screenfull from 'screenfull';
+import { buildAbsoluteURL } from 'url-toolkit';
 
-import { getQualityLevelUrl } from '../helpers';
 import { useQualityDetails, useQualityLevels, useTouchscreen } from '../hooks';
 
 import { Bar } from './bar';
@@ -64,7 +64,7 @@ export const GozlePlayer = ({ url, ...props }: P) => {
 
   const qualityLevelDetails = useQualityDetails(
     qualityUrl || qualityLevels.length
-      ? getQualityLevelUrl(url, qualityLevels[0].url)
+      ? buildAbsoluteURL(url, qualityLevels[0].url, { alwaysNormalize: true })
       : '',
   );
 
@@ -151,7 +151,9 @@ export const GozlePlayer = ({ url, ...props }: P) => {
   useEffect(() => {
     setQualityChanging(true);
     if (quality !== -1)
-      setQualityUrl(getQualityLevelUrl(url, qualityLevels[quality].url));
+      setQualityUrl(
+        buildAbsoluteURL(url, qualityLevels[0].url, { alwaysNormalize: true }),
+      );
     else setQualityUrl('');
   }, [url, quality, qualityLevels]);
 

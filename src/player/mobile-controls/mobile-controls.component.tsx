@@ -23,6 +23,7 @@ type P =
 
 export const MobileControls = (props: P) => {
   const [showControls, setShowControls] = useState<boolean>(false);
+  const [pointerEventsOff, setPointerEventsOff] = useState<boolean>(false);
 
   const {
     calculateAndSetPlayed,
@@ -43,27 +44,32 @@ export const MobileControls = (props: P) => {
 
   const handleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    if (!doubleTapTimer.current) {
-      doubleTapTimer.current = setTimeout(() => {
-        setShowControls(true);
-        if (props.type === 'ad' && props.landingUrl && playing) {
-          setPlaying((prev) => !prev);
-          window.open(props.landingUrl, '_blank')?.focus();
-        }
-        doubleTapTimer.current = null;
-      }, 300);
+    if (props.type === 'ad') {
+      setShowControls(true);
+      if (props.landingUrl && playing) {
+        setPlaying((prev) => !prev);
+        window.open(props.landingUrl, '_blank')?.focus();
+      }
     } else {
-      clearTimeout(doubleTapTimer.current);
-      const targetRect = event.currentTarget.getBoundingClientRect();
-      const clickPosition = (event.pageX - targetRect.x) / targetRect.width;
-      const seekValue =
-        clickPosition < 0.4
-          ? playedSeconds - 5
-          : clickPosition >= 0.6
-          ? playedSeconds + 5
-          : 0;
-      if (seekValue) seekTo?.(seekValue, 'seconds');
-      doubleTapTimer.current = null;
+      if (!doubleTapTimer.current) {
+        doubleTapTimer.current = setTimeout(() => {
+          setShowControls(true);
+          doubleTapTimer.current = null;
+        }, 300);
+      } else {
+        clearTimeout(doubleTapTimer.current);
+        const targetRect = event.currentTarget.getBoundingClientRect();
+        const clickPosition = (event.pageX - targetRect.x) / targetRect.width;
+        const seekValue =
+          clickPosition < 0.4
+            ? playedSeconds - 5
+            : clickPosition >= 0.6
+            ? playedSeconds + 5
+            : 0;
+        if (seekValue) seekTo?.(seekValue, 'seconds');
+        doubleTapTimer.current = null;
+        setPointerEventsOff(true);
+      }
     }
   };
 
@@ -114,6 +120,22 @@ export const MobileControls = (props: P) => {
       window.removeEventListener('click', listener);
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    let timeout: NodeJS.Timeout | undefined = undefined;
+
+    if (pointerEventsOff)
+      timeout = setTimeout(() => {
+        if (isMounted) setPointerEventsOff(false);
+      }, 300);
+
+    return () => {
+      isMounted = false;
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [pointerEventsOff]);
 
   return (
     <>
