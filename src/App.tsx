@@ -7,8 +7,8 @@ const App = () => {
   const handleSkip = () => setAdShowed(true);
 
   return (
-    <div className="App">
-      <div>
+    <div className="App" style={{ width: '100%' }}>
+      <div style={{ width: '100%' }}>
         <GozlePlayer
           landingUrl="https://100haryt.com.tm"
           onSkip={handleSkip}

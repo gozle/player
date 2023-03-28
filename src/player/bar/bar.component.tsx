@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { AdLabel } from '../../components/ad-label';
 import { SkipButton } from '../../components/skip-button';
@@ -20,6 +20,7 @@ type P = {} & (
 );
 
 export const Bar = (props: P) => {
+  const [showControls, setShowControls] = useState<boolean>(false);
   const [volumeLock, setVolumeLock] = useState<boolean>(false);
 
   const {
@@ -29,7 +30,6 @@ export const Bar = (props: P) => {
     live,
     played,
     playedLock,
-    playedSeconds,
     playing,
     seekTo,
     setMuted,
@@ -106,11 +106,14 @@ export const Bar = (props: P) => {
   };
 
   const handlePointerMove = (event: React.PointerEvent) => {
+    setShowControls(true);
     if (playedLock) calculateAndSetPlayed(event.pageX, timeRef);
     else if (volumeLock) calculateAndSetVolume(event.pageX);
   };
 
   const handlePointerUp = (event?: React.PointerEvent) => {
+    setShowControls(false);
+
     if (playedLock) {
       seekTo?.(played, 'fraction');
       setPlayedLock(false);
@@ -151,6 +154,22 @@ export const Bar = (props: P) => {
     calculateAndSetVolume(event.pageX);
   };
 
+  useEffect(() => {
+    let isMounted = true;
+    let timeout: NodeJS.Timeout | undefined = undefined;
+
+    if (showControls)
+      timeout = setTimeout(() => {
+        if (isMounted && !settingsRef.current?.settingsOpen)
+          setShowControls(false);
+      }, 3000);
+
+    return () => {
+      isMounted = false;
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [showControls]);
+
   const controlsRef = (instance: {
     settings?: { settingsOpen: boolean } | null;
     volume?: HTMLDivElement | null;
@@ -163,7 +182,7 @@ export const Bar = (props: P) => {
 
   return (
     <div
-      className={styles.bar_container}
+      className={styles.bar_container + (showControls ? ' ' + styles.show : '')}
       onClick={() => {
         if (!playedLock) setPlaying((prev) => !prev);
         if (props.type === 'ad' && props.landingUrl && playing)

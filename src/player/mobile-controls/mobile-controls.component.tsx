@@ -7,6 +7,7 @@ import { GozlePlayerContext } from '../gozle-player.context';
 
 import { BottomControls } from './bottom-controls';
 import { CentralControls } from './central-controls';
+import { DoubleTapIndicators } from './double-tap-indicators';
 import styles from './mobile-controls.module.scss';
 import { TopControls } from './top-controls';
 
@@ -23,7 +24,8 @@ type P =
 
 export const MobileControls = (props: P) => {
   const [showControls, setShowControls] = useState<boolean>(false);
-  const [pointerEventsOff, setPointerEventsOff] = useState<boolean>(false);
+  const [isIOS, setIsIOS] = useState<boolean>(false);
+  const [doubleTap, setDoubleTap] = useState<'left' | 'right' | undefined>();
 
   const {
     calculateAndSetPlayed,
@@ -50,6 +52,8 @@ export const MobileControls = (props: P) => {
         setPlaying((prev) => !prev);
         window.open(props.landingUrl, '_blank')?.focus();
       }
+    } else if (isIOS) {
+      setShowControls(true);
     } else {
       if (!doubleTapTimer.current) {
         doubleTapTimer.current = setTimeout(() => {
@@ -61,14 +65,16 @@ export const MobileControls = (props: P) => {
         const targetRect = event.currentTarget.getBoundingClientRect();
         const clickPosition = (event.pageX - targetRect.x) / targetRect.width;
         const seekValue =
-          clickPosition < 0.4
+          clickPosition <= 0.4
             ? playedSeconds - 5
             : clickPosition >= 0.6
             ? playedSeconds + 5
             : 0;
-        if (seekValue) seekTo?.(seekValue, 'seconds');
+        if (seekValue) {
+          seekTo?.(seekValue, 'seconds');
+          setDoubleTap(clickPosition <= 0.4 ? 'left' : 'right');
+        }
         doubleTapTimer.current = null;
-        setPointerEventsOff(true);
       }
     }
   };
@@ -126,16 +132,23 @@ export const MobileControls = (props: P) => {
 
     let timeout: NodeJS.Timeout | undefined = undefined;
 
-    if (pointerEventsOff)
+    if (doubleTap)
       timeout = setTimeout(() => {
-        if (isMounted) setPointerEventsOff(false);
+        if (isMounted) setDoubleTap(undefined);
       }, 300);
 
     return () => {
       isMounted = false;
       if (timeout) clearTimeout(timeout);
     };
-  }, [pointerEventsOff]);
+  }, [doubleTap]);
+
+  useEffect(() => {
+    setIsIOS(
+      //@ts-ignore
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
+    );
+  }, []);
 
   return (
     <>
@@ -151,6 +164,7 @@ export const MobileControls = (props: P) => {
             styles.bar_inner_container +
             (showControls ? ' ' + styles.visible : '')
           }
+          style={doubleTap ? { pointerEvents: 'none' } : undefined}
         >
           <div className={styles.top_bar}>
             <TopControls ref={settingsRef} />
@@ -167,6 +181,7 @@ export const MobileControls = (props: P) => {
             )}
           </div>
         </div>
+        {!isIOS && <DoubleTapIndicators show={doubleTap} />}
       </div>
       {isAd && (
         <div className={styles.ad_controls}>

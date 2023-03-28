@@ -1,4 +1,6 @@
 export * from './arrow-right.icon';
+export * from './fast-forward.icon';
+export * from './fast-rewind.icon';
 export * from './full-screen-collapse.icon';
 export * from './full-screen-expand.icon';
 export * from './gozle.icon';

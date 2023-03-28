@@ -7,10 +7,14 @@
   right: 0;
   top: 0;
 
-  cursor: pointer;
+  cursor: none;
 
-  &:hover > .bar {
-    opacity: 1;
+  &.show {
+    cursor: pointer;
+
+    & > .bar {
+      opacity: 1;
+    }
   }
 }
 

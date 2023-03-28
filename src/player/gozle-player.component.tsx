@@ -16,6 +16,7 @@ import styles from './gozle-player.module.scss';
 import { MobileControls } from './mobile-controls';
 
 type P = {
+  thumbnail?: string;
   url: string;
 } & (
   | {
@@ -39,7 +40,7 @@ const rateLevels = [
   { name: '2', value: 2 },
 ];
 
-export const GozlePlayer = ({ url, ...props }: P) => {
+export const GozlePlayer = ({ thumbnail, url, ...props }: P) => {
   const [autoLevelEnabled, setAutoLevelEnabled] = useState<boolean>(true);
   const [duration, setDuration] = useState<number>(0);
   const [fullScreen, setFullScreen] = useState<boolean>(false);
@@ -152,13 +153,16 @@ export const GozlePlayer = ({ url, ...props }: P) => {
     setQualityChanging(true);
     if (quality !== -1)
       setQualityUrl(
-        buildAbsoluteURL(url, qualityLevels[0].url, { alwaysNormalize: true }),
+        buildAbsoluteURL(url, qualityLevels[quality].url, {
+          alwaysNormalize: true,
+        }),
       );
     else setQualityUrl('');
   }, [url, quality, qualityLevels]);
 
   useEffect(() => {
     if (url) {
+      setQuality(-1);
       setPlayed(0);
       setPlayedSeconds(0);
     }
@@ -230,6 +234,7 @@ export const GozlePlayer = ({ url, ...props }: P) => {
         <ReactPlayer
           config={{ hlsOptions: { liveSyncDurationCount: 9 } }}
           height="100%"
+          light={thumbnail}
           muted={muted}
           onDuration={handleDuration}
           onEnded={handleEnded}
