@@ -7,6 +7,7 @@ export type RateLevel = { name: string; value: number };
 export interface IGozlePlayerContext {
   autoLevelEnabled: boolean;
   autoQualityName?: string;
+  buffering: boolean;
   calculateAndSetPlayed: (
     pageX: number,
     timeRef: React.RefObject<HTMLDivElement>,
@@ -43,6 +44,7 @@ export interface IGozlePlayerContext {
 
 const defaultContextValue: IGozlePlayerContext = {
   autoLevelEnabled: true,
+  buffering: false,
   calculateAndSetPlayed: () => {},
   containerHeight: 0,
   containerWidth: 0,

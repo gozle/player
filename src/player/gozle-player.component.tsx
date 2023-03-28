@@ -4,6 +4,7 @@ import { OnProgressProps } from 'react-player/base';
 import ReactPlayer from 'react-player/file';
 import screenfull from 'screenfull';
 import { buildAbsoluteURL } from 'url-toolkit';
+import { Loader } from '../components/loader';
 
 import {
   useQualityDetails,
@@ -59,6 +60,7 @@ export const GozlePlayer = ({
   ...props
 }: P) => {
   const [autoLevelEnabled, setAutoLevelEnabled] = useState<boolean>(true);
+  const [buffering, setBuffering] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(0);
   const [fullScreen, setFullScreen] = useState<boolean>(false);
   const [loaded, setLoaded] = useState<number>(0);
@@ -211,6 +213,7 @@ export const GozlePlayer = ({
 
   const contextValue: IGozlePlayerContext = {
     autoLevelEnabled,
+    buffering,
     autoQualityName:
       hlsRef.current && autoLevelEnabled && hlsRef.current.currentLevel !== -1
         ? hlsRef.current.levels[hlsRef.current.currentLevel].name || undefined
@@ -261,6 +264,8 @@ export const GozlePlayer = ({
             height="100%"
             light={thumbnail}
             muted={muted}
+            onBuffer={() => setBuffering(true)}
+            onBufferEnd={() => setBuffering(false)}
             onDuration={handleDuration}
             onEnded={handleEnded}
             onPause={() => setPlaying(false)}
@@ -283,6 +288,11 @@ export const GozlePlayer = ({
           )
         ) : (
           <></>
+        )}
+        {buffering && (
+          <div className={styles.loader_container}>
+            <Loader />
+          </div>
         )}
       </GozlePlayerContext.Provider>
     </div>

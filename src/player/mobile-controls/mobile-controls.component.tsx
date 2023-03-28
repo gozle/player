@@ -28,6 +28,7 @@ export const MobileControls = (props: P) => {
   const [doubleTap, setDoubleTap] = useState<'left' | 'right' | undefined>();
 
   const {
+    buffering,
     calculateAndSetPlayed,
     isAd,
     live,
@@ -169,9 +170,11 @@ export const MobileControls = (props: P) => {
           <div className={styles.top_bar}>
             <TopControls ref={settingsRef} />
           </div>
-          <div className={styles.cental_bar}>
-            <CentralControls />
-          </div>
+          {!buffering && (
+            <div className={styles.cental_bar}>
+              <CentralControls />
+            </div>
+          )}
           <div className={styles.bottom_bar}>
             <BottomControls />
             {!live ? (
