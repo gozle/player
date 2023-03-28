@@ -9,14 +9,8 @@
 
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
-}
 
-.volume_progress {
-  opacity: 0;
-}
-
-@media (min-width: 769px) {
-  .volume {
+  &.wide {
     &:hover {
       width: 150px;
 
@@ -25,4 +19,8 @@
       }
     }
   }
+}
+
+.volume_progress {
+  opacity: 0;
 }

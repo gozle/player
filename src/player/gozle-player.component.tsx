@@ -5,7 +5,12 @@ import ReactPlayer from 'react-player/file';
 import screenfull from 'screenfull';
 import { buildAbsoluteURL } from 'url-toolkit';
 
-import { useQualityDetails, useQualityLevels, useTouchscreen } from '../hooks';
+import {
+  useQualityDetails,
+  useQualityLevels,
+  useResizeObserver,
+  useTouchscreen,
+} from '../hooks';
 
 import { Bar } from './bar';
 import {
@@ -16,8 +21,12 @@ import styles from './gozle-player.module.scss';
 import { MobileControls } from './mobile-controls';
 
 type P = {
+  className?: string;
+  onEnded?: () => void;
   thumbnail?: string;
+  toggleWideScreen: () => void;
   url: string;
+  wideScreen: boolean;
 } & (
   | {
       landingUrl?: string;
@@ -40,7 +49,15 @@ const rateLevels = [
   { name: '2', value: 2 },
 ];
 
-export const GozlePlayer = ({ thumbnail, url, ...props }: P) => {
+export const GozlePlayer = ({
+  className = '',
+  onEnded,
+  thumbnail,
+  toggleWideScreen,
+  url,
+  wideScreen,
+  ...props
+}: P) => {
   const [autoLevelEnabled, setAutoLevelEnabled] = useState<boolean>(true);
   const [duration, setDuration] = useState<number>(0);
   const [fullScreen, setFullScreen] = useState<boolean>(false);
@@ -60,6 +77,8 @@ export const GozlePlayer = ({ thumbnail, url, ...props }: P) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const playerRef = useRef<ReactPlayer>(null);
+
+  const { width } = useResizeObserver(containerRef);
 
   const qualityLevels = useQualityLevels(url);
 
@@ -90,6 +109,7 @@ export const GozlePlayer = ({ thumbnail, url, ...props }: P) => {
 
   const handleEnded = () => {
     if (props.type === 'ad') props.onSkip();
+    else if (onEnded) onEnded();
   };
 
   const handleProgress = (progress: OnProgressProps) => {
@@ -196,6 +216,8 @@ export const GozlePlayer = ({ thumbnail, url, ...props }: P) => {
         ? hlsRef.current.levels[hlsRef.current.currentLevel].name || undefined
         : undefined,
     calculateAndSetPlayed,
+    containerHeight: containerRef.current?.getBoundingClientRect().height || 0,
+    containerWidth: containerRef.current?.getBoundingClientRect().width || 0,
     duration,
     fullScreen,
     live: qualityLevelDetails.live,
@@ -219,7 +241,9 @@ export const GozlePlayer = ({ thumbnail, url, ...props }: P) => {
     setVolume,
     isAd: props.type === 'ad',
     toggleFullScreen,
+    toggleWideScreen,
     volume,
+    wideScreen,
   };
 
   // Boolean(
@@ -229,26 +253,28 @@ export const GozlePlayer = ({ thumbnail, url, ...props }: P) => {
   // );
 
   return (
-    <div className={styles.container} ref={containerRef}>
+    <div className={styles.container + ' ' + className} ref={containerRef}>
       <GozlePlayerContext.Provider value={contextValue}>
-        <ReactPlayer
-          config={{ hlsOptions: { liveSyncDurationCount: 9 } }}
-          height="100%"
-          light={thumbnail}
-          muted={muted}
-          onDuration={handleDuration}
-          onEnded={handleEnded}
-          onPause={() => setPlaying(false)}
-          onProgress={handleProgress}
-          onReady={handleReady}
-          playing={!playedLock && playing}
-          playsinline
-          ref={playerRef}
-          style={{ aspectRatio: '16/9', display: 'flex' }}
-          url={qualityUrl || url}
-          volume={volume}
-          width="100%"
-        />
+        <div className={styles.player_container}>
+          <ReactPlayer
+            config={{ hlsOptions: { liveSyncDurationCount: 9 } }}
+            height="100%"
+            light={thumbnail}
+            muted={muted}
+            onDuration={handleDuration}
+            onEnded={handleEnded}
+            onPause={() => setPlaying(false)}
+            onProgress={handleProgress}
+            onReady={handleReady}
+            playing={!playedLock && playing}
+            playsinline
+            ref={playerRef}
+            style={{ aspectRatio: '16/9', display: 'flex' }}
+            url={qualityUrl || url}
+            volume={volume}
+            width="100%"
+          />
+        </div>
         {ready ? (
           touchscreen ? (
             <MobileControls {...props} />

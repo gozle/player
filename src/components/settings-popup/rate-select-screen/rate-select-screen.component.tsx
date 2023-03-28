@@ -7,6 +7,7 @@ import styles from './rate-select-screen.module.scss';
 
 type P = {
   className?: string;
+  maxHeight?: string;
   onBackClick?: () => void;
   onLevelClick: (event: React.MouseEvent) => void;
   rowClassName?: string;
@@ -14,6 +15,7 @@ type P = {
 
 export const RateSelectScreen = ({
   className,
+  maxHeight,
   onBackClick,
   onLevelClick,
   rowClassName = '',
@@ -21,7 +23,7 @@ export const RateSelectScreen = ({
   const { rate, rateLevels } = useContext(GozlePlayerContext);
 
   return (
-    <div className={className}>
+    <div className={className} style={{ maxHeight }}>
       <div className={styles.back + ' ' + rowClassName} onClick={onBackClick}>
         <div className={styles.icon}>
           <ArrowRightIcon />

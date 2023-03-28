@@ -11,8 +11,8 @@ export const SettingsPopup = () => {
   const [view, setView] = useState<'main' | 'quality' | 'rate'>('main');
 
   const {
-    autoLevelEnabled,
     autoQualityName,
+    containerHeight,
     quality,
     qualityLevels,
     rate,
@@ -43,11 +43,26 @@ export const SettingsPopup = () => {
     [setQuality, setRate],
   );
 
+  const maxHeight = `calc(${containerHeight}px - 5em - 50px)`;
+
   return (
-    <div className={styles.popup}>
+    <div
+      className={styles.popup}
+      style={{
+        fontSize:
+          containerHeight < 480
+            ? '.8em'
+            : containerHeight < 769
+            ? '.9em'
+            : undefined,
+      }}
+    >
       <div
         className={styles.screen}
-        style={view !== 'main' ? { marginLeft: '-100%' } : undefined}
+        style={{
+          marginLeft: view !== 'main' ? '-100%' : undefined,
+          maxHeight,
+        }}
       >
         <div
           className={styles.row + ' ' + styles.clickable}
@@ -85,6 +100,7 @@ export const SettingsPopup = () => {
       {view === 'quality' && (
         <QualitySelectScreen
           className={styles.screen}
+          maxHeight={maxHeight}
           onBackClick={handleBackClick}
           onLevelClick={handleQualityLevelClick}
           rowClassName={styles.clickable}
@@ -93,6 +109,7 @@ export const SettingsPopup = () => {
       {view === 'rate' && (
         <RateSelectScreen
           className={styles.screen}
+          maxHeight={maxHeight}
           onBackClick={handleBackClick}
           onLevelClick={handleRateLevelClick}
           rowClassName={styles.clickable}

@@ -7,6 +7,7 @@ import styles from './quality-select-screen.module.scss';
 
 type P = {
   className?: string;
+  maxHeight?: string;
   onBackClick?: () => void;
   onLevelClick: (event: React.MouseEvent) => void;
   rowClassName?: string;
@@ -14,6 +15,7 @@ type P = {
 
 export const QualitySelectScreen = ({
   className,
+  maxHeight,
   onBackClick,
   onLevelClick,
   rowClassName = '',
@@ -22,7 +24,7 @@ export const QualitySelectScreen = ({
     useContext(GozlePlayerContext);
 
   return (
-    <div className={className}>
+    <div className={className} style={{ maxHeight }}>
       <div className={styles.back + ' ' + rowClassName} onClick={onBackClick}>
         <div className={styles.icon}>
           <ArrowRightIcon />

@@ -6,7 +6,7 @@ $alpha: 0.6;
 .popup {
   position: absolute;
   right: 0.5em;
-  bottom: 4.5em;
+  bottom: 5em;
 
   @include webkitFlex(row, stretch, start);
   @include flex(row, stretch, flex-start);
@@ -20,8 +20,6 @@ $alpha: 0.6;
   background-color: rgba(map-get($colors, 'popup'), $alpha);
 
   overflow: hidden;
-
-  font-size: 0.8em;
 }
 
 .screen {
@@ -88,21 +86,5 @@ $alpha: 0.6;
     & > path {
       stroke: currentColor;
     }
-  }
-}
-
-@media (min-width: 480px) {
-  .screen {
-    max-height: 16em;
-  }
-}
-
-@media (min-width: 769px) {
-  .popup {
-    font-size: 1em;
-  }
-
-  .screen {
-    max-height: 20em;
   }
 }

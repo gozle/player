@@ -12,12 +12,17 @@ type P = {
 
 export const VolumeControls = React.forwardRef<HTMLDivElement, P>(
   (props, ref) => {
-    const { muted, setMuted, volume } = useContext(GozlePlayerContext);
+    const { containerWidth, muted, setMuted, volume } =
+      useContext(GozlePlayerContext);
 
     const handleVolumeButtonClick = () => setMuted((prev) => !prev);
 
     return (
-      <div className={styles.volume}>
+      <div
+        className={
+          styles.volume + (containerWidth > 769 ? ' ' + styles.wide : '')
+        }
+      >
         <VolumeButton
           muted={muted}
           onClick={handleVolumeButtonClick}

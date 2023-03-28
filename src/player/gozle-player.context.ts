@@ -11,6 +11,8 @@ export interface IGozlePlayerContext {
     pageX: number,
     timeRef: React.RefObject<HTMLDivElement>,
   ) => void;
+  containerHeight: number;
+  containerWidth: number;
   duration: number;
   fullScreen: boolean;
   isAd: boolean;
@@ -34,12 +36,16 @@ export interface IGozlePlayerContext {
   setRate: Dispatch<SetStateAction<number>>;
   setVolume: Dispatch<SetStateAction<number>>;
   toggleFullScreen: () => void;
+  toggleWideScreen: () => void;
   volume: number;
+  wideScreen: boolean;
 }
 
 const defaultContextValue: IGozlePlayerContext = {
   autoLevelEnabled: true,
   calculateAndSetPlayed: () => {},
+  containerHeight: 0,
+  containerWidth: 0,
   duration: 0,
   fullScreen: false,
   isAd: false,
@@ -62,7 +68,9 @@ const defaultContextValue: IGozlePlayerContext = {
   setRate: () => {},
   setVolume: () => {},
   toggleFullScreen: () => {},
+  toggleWideScreen: () => {},
   volume: 1,
+  wideScreen: false,
 };
 
 export const GozlePlayerContext = createContext(defaultContextValue);

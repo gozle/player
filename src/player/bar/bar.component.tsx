@@ -112,8 +112,6 @@ export const Bar = (props: P) => {
   };
 
   const handlePointerUp = (event?: React.PointerEvent) => {
-    setShowControls(false);
-
     if (playedLock) {
       seekTo?.(played, 'fraction');
       setPlayedLock(false);

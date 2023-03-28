@@ -12,12 +12,16 @@ const App = () => {
         <GozlePlayer
           landingUrl="https://100haryt.com.tm"
           onSkip={handleSkip}
+          toggleWideScreen={() => {
+            console.log('wide');
+          }}
           type={adShowed ? 'video' : 'ad'}
           url={
             adShowed
               ? 'http://content.jwplatform.com/manifests/vM7nH0Kl.m3u8'
               : 'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8'
           }
+          wideScreen={false}
         />
       </div>
     </div>
