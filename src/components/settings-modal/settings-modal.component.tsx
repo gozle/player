@@ -11,6 +11,7 @@ type P = {
 export const SettingsModal = ({ onCloseModal }: P) => {
   const {
     autoLevelEnabled,
+    i18n,
     quality,
     qualityLevels,
     rate,
@@ -42,7 +43,7 @@ export const SettingsModal = ({ onCloseModal }: P) => {
       <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
         <div className={styles.title}>Настройки воспроизведения</div>
         <div className={styles.row}>
-          <div className={styles.label}>Скорость</div>
+          <div className={styles.label}>{i18n.rate}</div>
           <div className={styles.value}>
             <select value={rate} onChange={handleRateSelect}>
               {rateLevels.map((el, i) => (
@@ -54,11 +55,11 @@ export const SettingsModal = ({ onCloseModal }: P) => {
           </div>
         </div>
         <div className={styles.row}>
-          <div className={styles.label}>Качество</div>
+          <div className={styles.label}>{i18n.quality}</div>
           <div className={styles.value}>
             <select value={selectedQuality} onChange={handleQualitySelect}>
               <option key={-1} value={-1}>
-                Auto
+                {i18n.auto}
               </option>
               {qualityLevels.map((el, i) => (
                 <option key={i} value={i}>

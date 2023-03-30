@@ -15,14 +15,17 @@ import {
 
 import { Bar } from './bar';
 import {
+  defaultI18n,
   GozlePlayerContext,
   IGozlePlayerContext,
+  Internationalization,
 } from './gozle-player.context';
 import styles from './gozle-player.module.scss';
 import { MobileControls } from './mobile-controls';
 
 type P = {
   className?: string;
+  i18n: Internationalization;
   onEnded?: () => void;
   thumbnail?: string;
   toggleWideScreen: () => void;
@@ -39,11 +42,11 @@ type P = {
     }
 );
 
-const rateLevels = [
+const rateLevels = (normal: string) => [
   { name: '0.25', value: 0.25 },
   { name: '0.5', value: 0.5 },
   { name: '0.75', value: 0.75 },
-  { name: 'Обычная', value: 1 },
+  { name: normal, value: 1 },
   { name: '1.25', value: 1.25 },
   { name: '1.5', value: 1.5 },
   { name: '1.75', value: 1.75 },
@@ -52,6 +55,7 @@ const rateLevels = [
 
 export const GozlePlayer = ({
   className = '',
+  i18n = defaultI18n,
   onEnded,
   thumbnail,
   toggleWideScreen,
@@ -223,6 +227,7 @@ export const GozlePlayer = ({
     containerWidth: containerRef.current?.getBoundingClientRect().width || 0,
     duration,
     fullScreen,
+    i18n,
     live: qualityLevelDetails.live,
     loaded,
     muted,
@@ -233,7 +238,7 @@ export const GozlePlayer = ({
     quality,
     qualityLevels,
     rate,
-    rateLevels,
+    rateLevels: rateLevels(i18n.normal),
     seekTo: playerRef.current?.seekTo,
     setMuted,
     setPlayed,

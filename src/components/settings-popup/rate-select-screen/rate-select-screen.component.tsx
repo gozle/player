@@ -20,7 +20,7 @@ export const RateSelectScreen = ({
   onLevelClick,
   rowClassName = '',
 }: P) => {
-  const { rate, rateLevels } = useContext(GozlePlayerContext);
+  const { i18n, rate, rateLevels } = useContext(GozlePlayerContext);
 
   return (
     <div className={className} style={{ maxHeight }}>
@@ -28,7 +28,7 @@ export const RateSelectScreen = ({
         <div className={styles.icon}>
           <ArrowRightIcon />
         </div>
-        <div className={styles.label}>Скорость воспроизведения</div>
+        <div className={styles.label}>{i18n.playbackRate}</div>
       </div>
       <ul className={styles.levels_list}>
         {rateLevels.map((el) => (

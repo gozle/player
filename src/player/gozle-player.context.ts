@@ -4,6 +4,26 @@ import { QualityLevel } from '../hooks';
 
 export type RateLevel = { name: string; value: number };
 
+export type Internationalization = {
+  advertisement: string;
+  auto: string;
+  normal: string;
+  playbackRate: string;
+  quality: string;
+  rate: string;
+  skip: string;
+};
+
+export const defaultI18n: Internationalization = {
+  advertisement: 'Advertisement',
+  auto: 'Auto',
+  normal: 'Normal',
+  playbackRate: 'Playback rate',
+  quality: 'Quality',
+  rate: 'Rate',
+  skip: 'Skip',
+};
+
 export interface IGozlePlayerContext {
   autoLevelEnabled: boolean;
   autoQualityName?: string;
@@ -16,6 +36,7 @@ export interface IGozlePlayerContext {
   containerWidth: number;
   duration: number;
   fullScreen: boolean;
+  i18n: Internationalization;
   isAd: boolean;
   live: boolean;
   loaded: number;
@@ -50,6 +71,7 @@ const defaultContextValue: IGozlePlayerContext = {
   containerWidth: 0,
   duration: 0,
   fullScreen: false,
+  i18n: defaultI18n,
   isAd: false,
   live: false,
   loaded: 0,

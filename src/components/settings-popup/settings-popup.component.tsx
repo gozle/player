@@ -13,6 +13,7 @@ export const SettingsPopup = () => {
   const {
     autoQualityName,
     containerHeight,
+    i18n,
     quality,
     qualityLevels,
     rate,
@@ -68,7 +69,7 @@ export const SettingsPopup = () => {
           className={styles.row + ' ' + styles.clickable}
           onClick={() => setView('rate')}
         >
-          <div className={styles.label}>Скорость</div>
+          <div className={styles.label}>{i18n.rate}</div>
           <div className={styles.value}>
             <span>
               {rateLevels.find((el) => el.value === rate)?.name || ''}
@@ -82,13 +83,13 @@ export const SettingsPopup = () => {
           className={styles.row + ' ' + styles.clickable}
           onClick={() => setView('quality')}
         >
-          <div className={styles.label}>Качество</div>
+          <div className={styles.label}>{i18n.quality}</div>
           <div className={styles.value}>
             <span>
               {quality === -1
                 ? autoQualityName
-                  ? `Auto (${autoQualityName})`
-                  : 'Auto'
+                  ? `${i18n.auto} (${autoQualityName})`
+                  : i18n.auto
                 : qualityLevels[quality].name || qualityLevels[quality].height}
             </span>
             <div className={styles.icon}>

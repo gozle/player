@@ -10,7 +10,7 @@ interface P {
 }
 
 export const SkipButton = ({ className = '', onClick }: P) => {
-  const { playedSeconds } = useContext(GozlePlayerContext);
+  const { i18n, playedSeconds } = useContext(GozlePlayerContext);
 
   const disabled = playedSeconds <= 5;
 
@@ -25,7 +25,7 @@ export const SkipButton = ({ className = '', onClick }: P) => {
       onClick={handleClick}
       disabled={disabled}
     >
-      Пропустить
+      {i18n.skip}
       {playedSeconds <= 5 ? ` (${Math.round(5 - playedSeconds)})` : ''}
     </button>
   );

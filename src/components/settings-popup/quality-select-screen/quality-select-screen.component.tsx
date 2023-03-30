@@ -20,7 +20,7 @@ export const QualitySelectScreen = ({
   onLevelClick,
   rowClassName = '',
 }: P) => {
-  const { autoLevelEnabled, quality, qualityLevels } =
+  const { autoLevelEnabled, i18n, quality, qualityLevels } =
     useContext(GozlePlayerContext);
 
   return (
@@ -29,7 +29,7 @@ export const QualitySelectScreen = ({
         <div className={styles.icon}>
           <ArrowRightIcon />
         </div>
-        <div className={styles.label}>Качество</div>
+        <div className={styles.label}>{i18n.quality}</div>
       </div>
       <ul className={styles.levels_list}>
         {qualityLevels.map((el: any, i: number) => (
@@ -56,7 +56,7 @@ export const QualitySelectScreen = ({
           <div className={styles.icon}>
             <OkIcon fill={autoLevelEnabled ? 'white' : 'none'} />
           </div>
-          <div>Auto</div>
+          <div>{i18n.auto}</div>
         </li>
       </ul>
     </div>
