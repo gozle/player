@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { GozlePlayer } from './player';
 
 const App = () => {
-  const [adShowed, setAdShowed] = useState<boolean>(false);
+  const [adShowed, setAdShowed] = useState<boolean>(true);
 
   const handleSkip = () => setAdShowed(true);
 
@@ -18,7 +18,7 @@ const App = () => {
           type={adShowed ? 'video' : 'ad'}
           url={
             adShowed
-              ? 'http://content.jwplatform.com/manifests/vM7nH0Kl.m3u8'
+              ? 'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8'
               : 'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8'
           }
           wideScreen={false}

@@ -25,7 +25,7 @@ import { MobileControls } from './mobile-controls';
 
 type P = {
   className?: string;
-  i18n: Internationalization;
+  i18n?: Internationalization;
   onEnded?: () => void;
   thumbnail?: string;
   toggleWideScreen: () => void;
@@ -141,30 +141,41 @@ export const GozlePlayer = ({
     }
   };
 
-  const toggleFullScreen = () => {
+  const toggleFullScreen = () => setFullScreen((prev) => !prev);
+
+  useEffect(() => {
     if (containerRef.current && playerRef.current) {
       const HTML5VideoElement = playerRef.current.getInternalPlayer();
 
+      if (HTML5VideoElement)
+        console.log(HTML5VideoElement.webkitSupportsPresentationMode);
+
       if (
+        HTML5VideoElement &&
         HTML5VideoElement.webkitSupportsPresentationMode &&
         typeof HTML5VideoElement.webkitSetPresentationMode === 'function'
       ) {
         HTML5VideoElement.webkitSetPresentationMode(
-          HTML5VideoElement.webkitPresentationMode === 'fullscreen'
-            ? 'inline'
-            : 'fullscreen',
+          fullScreen ? 'fullscreen' : 'inline',
         );
       } else {
-        if (fullScreen) {
-          setFullScreen(false);
-          screenfull.exit();
-        } else {
-          screenfull.request(containerRef.current);
-          setFullScreen(true);
-        }
+        if (fullScreen) screenfull.request(containerRef.current);
+        else screenfull.exit();
       }
     }
-  };
+  }, [fullScreen]);
+
+  useEffect(() => {
+    const listener = () =>
+      setFullScreen((prev) =>
+        prev === screenfull.isFullscreen ? prev : screenfull.isFullscreen,
+      );
+
+    screenfull.on('change', listener);
+    return () => {
+      screenfull.off('change', listener);
+    };
+  }, []);
 
   // useEffect(() => {
   //   if (hlsRef.current && quality !== -1) {
