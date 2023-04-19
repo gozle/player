@@ -79,24 +79,27 @@ export const SettingsPopup = () => {
             </div>
           </div>
         </div>
-        <div
-          className={styles.row + ' ' + styles.clickable}
-          onClick={() => setView('quality')}
-        >
-          <div className={styles.label}>{i18n.quality}</div>
-          <div className={styles.value}>
-            <span>
-              {quality === -1
-                ? autoQualityName
-                  ? `${i18n.auto} (${autoQualityName})`
-                  : i18n.auto
-                : qualityLevels[quality].name || qualityLevels[quality].height}
-            </span>
-            <div className={styles.icon}>
-              <ArrowRightIcon />
+        {qualityLevels.length > 0 && (
+          <div
+            className={styles.row + ' ' + styles.clickable}
+            onClick={() => setView('quality')}
+          >
+            <div className={styles.label}>{i18n.quality}</div>
+            <div className={styles.value}>
+              <span>
+                {quality === -1
+                  ? autoQualityName
+                    ? `${i18n.auto} (${autoQualityName})`
+                    : i18n.auto
+                  : qualityLevels[quality].name ||
+                    qualityLevels[quality].height}
+              </span>
+              <div className={styles.icon}>
+                <ArrowRightIcon />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
       {view === 'quality' && (
         <QualitySelectScreen

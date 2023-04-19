@@ -54,21 +54,23 @@ export const SettingsModal = ({ onCloseModal }: P) => {
             </select>
           </div>
         </div>
-        <div className={styles.row}>
-          <div className={styles.label}>{i18n.quality}</div>
-          <div className={styles.value}>
-            <select value={selectedQuality} onChange={handleQualitySelect}>
-              <option key={-1} value={-1}>
-                {i18n.auto}
-              </option>
-              {qualityLevels.map((el, i) => (
-                <option key={i} value={i}>
-                  {el.name || el.height}
+        {qualityLevels.length > 0 && (
+          <div className={styles.row}>
+            <div className={styles.label}>{i18n.quality}</div>
+            <div className={styles.value}>
+              <select value={selectedQuality} onChange={handleQualitySelect}>
+                <option key={-1} value={-1}>
+                  {i18n.auto}
                 </option>
-              ))}
-            </select>
+                {qualityLevels.map((el, i) => (
+                  <option key={i} value={i}>
+                    {el.name || el.height}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
+        )}
         <div className={styles.button_container}>
           <button onClick={onCloseModal}>Ок</button>
         </div>

@@ -15,17 +15,19 @@ export const useQualityDetails = (url: string) => {
 
   useEffect(() => {
     let mounted = true;
-    fetch(url)
-      .then(async (res) => {
-        const parser = new Parser();
 
-        parser.push(await res.text());
-        parser.end();
+    if (url)
+      fetch(url)
+        .then(async (res) => {
+          const parser = new Parser();
 
-        if (mounted)
-          setDetails({ live: !(parser.manifest as Manifest).endList });
-      })
-      .catch((err) => err);
+          parser.push(await res.text());
+          parser.end();
+
+          if (mounted)
+            setDetails({ live: !(parser.manifest as Manifest).endList });
+        })
+        .catch((err) => err);
 
     return () => {
       mounted = false;

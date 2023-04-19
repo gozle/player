@@ -26,21 +26,17 @@ import { MobileControls } from './mobile-controls';
 type P = {
   className?: string;
   i18n?: Internationalization;
+  landingUrl?: string;
   onEnded?: () => void;
+  onSkip?: () => void;
+  skipoffset?: number;
   thumbnail?: string;
   toggleWideScreen: () => void;
+  type: 'ad' | 'video';
   url: string;
+  videoType: 'video/mp4' | 'application/vnd.apple.mpegurl';
   wideScreen: boolean;
-} & (
-  | {
-      landingUrl?: string;
-      onSkip: () => void;
-      type: 'ad';
-    }
-  | {
-      type: 'video';
-    }
-);
+};
 
 const rateLevels = (normal: string) => [
   { name: '0.25', value: 0.25 },
@@ -84,9 +80,9 @@ export const GozlePlayer = ({
   const hlsRef = useRef<Hls | null>(null);
   const playerRef = useRef<ReactPlayer>(null);
 
-  const { width } = useResizeObserver(containerRef);
+  const { width: _ } = useResizeObserver(containerRef);
 
-  const qualityLevels = useQualityLevels(url);
+  const qualityLevels = useQualityLevels(url, props.videoType === 'video/mp4');
 
   const qualityLevelDetails = useQualityDetails(
     qualityUrl || qualityLevels.length
@@ -114,7 +110,7 @@ export const GozlePlayer = ({
   const handleDuration = (duration: number) => setDuration(duration);
 
   const handleEnded = () => {
-    if (props.type === 'ad') props.onSkip();
+    if (props.type === 'ad') props.onSkip?.();
     else if (onEnded) onEnded();
   };
 

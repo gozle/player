@@ -11,16 +11,11 @@ import { DoubleTapIndicators } from './double-tap-indicators';
 import styles from './mobile-controls.module.scss';
 import { TopControls } from './top-controls';
 
-type P =
-  | {
-      landingUrl?: string;
-      onSkip: () => void;
-      type: 'ad';
-    }
-  | {
-      landingUrl?: undefined;
-      type: 'video';
-    };
+type P = {
+  landingUrl?: string;
+  onSkip?: () => void;
+  skipoffset?: number;
+};
 
 export const MobileControls = (props: P) => {
   const [showControls, setShowControls] = useState<boolean>(false);
@@ -47,7 +42,7 @@ export const MobileControls = (props: P) => {
 
   const handleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    if (props.type === 'ad') {
+    if (isAd) {
       setShowControls(true);
       if (props.landingUrl && playing) {
         setPlaying((prev) => !prev);
@@ -94,7 +89,7 @@ export const MobileControls = (props: P) => {
 
   const handleSkipClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (props.type === 'ad') props.onSkip();
+    props.onSkip?.();
   };
 
   const handleTimeTouchStart = (event: React.TouchEvent) => {
@@ -189,7 +184,7 @@ export const MobileControls = (props: P) => {
       {isAd && (
         <div className={styles.ad_controls}>
           <AdLabel />
-          <SkipButton onClick={handleSkipClick} />
+          <SkipButton onClick={handleSkipClick} skipoffset={props.skipoffset} />
         </div>
       )}
     </>

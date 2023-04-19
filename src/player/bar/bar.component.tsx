@@ -8,16 +8,11 @@ import { GozlePlayerContext } from '../gozle-player.context';
 import styles from './bar.module.scss';
 import { Controls } from './controls';
 
-type P = {} & (
-  | {
-      landingUrl?: string;
-      onSkip: () => void;
-      type: 'ad';
-    }
-  | {
-      type: 'video';
-    }
-);
+type P = {
+  landingUrl?: string;
+  onSkip?: () => void;
+  skipoffset?: number;
+};
 
 export const Bar = (props: P) => {
   const [showControls, setShowControls] = useState<boolean>(false);
@@ -65,7 +60,7 @@ export const Bar = (props: P) => {
         setPlaying((prev) => !prev);
         break;
       case 'ArrowRight': {
-        if (!live && props.type !== 'ad') {
+        if (!live && !isAd) {
           setPlayedLock(true);
           setPlayed((prev) => prev + 5 / duration);
         }
@@ -73,7 +68,7 @@ export const Bar = (props: P) => {
       }
       case 'ArrowLeft':
         {
-          if (!live && props.type !== 'ad') {
+          if (!live && !isAd) {
             setPlayedLock(true);
             setPlayed((prev) => prev - 5 / duration);
           }
@@ -136,7 +131,7 @@ export const Bar = (props: P) => {
 
   const handleSkipClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (props.type === 'ad') props.onSkip();
+    props.onSkip?.();
   };
 
   const handleTimePointerDown = (event: React.PointerEvent) => {
@@ -183,7 +178,7 @@ export const Bar = (props: P) => {
       className={styles.bar_container + (showControls ? ' ' + styles.show : '')}
       onClick={() => {
         if (!playedLock) setPlaying((prev) => !prev);
-        if (props.type === 'ad' && props.landingUrl && playing)
+        if (isAd && props.landingUrl && playing)
           window.open(props.landingUrl, '_blank')?.focus();
       }}
       onKeyDown={handleKeyDown}
@@ -201,6 +196,7 @@ export const Bar = (props: P) => {
           <SkipButton
             className={styles.skip_button}
             onClick={handleSkipClick}
+            skipoffset={props.skipoffset}
           />
         </>
       )}

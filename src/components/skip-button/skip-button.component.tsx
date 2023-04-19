@@ -7,26 +7,31 @@ import styles from './skip-button.module.scss';
 interface P {
   className?: string;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  skipoffset?: number;
 }
 
-export const SkipButton = ({ className = '', onClick }: P) => {
-  const { i18n, playedSeconds } = useContext(GozlePlayerContext);
+export const SkipButton = ({ className = '', onClick, skipoffset = 5 }: P) => {
+  const { duration, i18n, playedSeconds } = useContext(GozlePlayerContext);
 
-  const disabled = playedSeconds <= 5;
+  const disabled = playedSeconds <= skipoffset;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled) return;
     else if (onClick) onClick(event);
   };
 
-  return (
+  return skipoffset < duration ? (
     <button
       className={styles.button + ' ' + className}
       onClick={handleClick}
       disabled={disabled}
     >
       {i18n.skip}
-      {playedSeconds <= 5 ? ` (${Math.round(5 - playedSeconds)})` : ''}
+      {playedSeconds <= skipoffset
+        ? ` (${Math.round(skipoffset - playedSeconds)})`
+        : ''}
     </button>
+  ) : (
+    <></>
   );
 };

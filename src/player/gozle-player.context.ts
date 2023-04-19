@@ -59,6 +59,7 @@ export interface IGozlePlayerContext {
   setVolume: Dispatch<SetStateAction<number>>;
   toggleFullScreen: () => void;
   toggleWideScreen: () => void;
+  videoType?: 'video/mp4' | 'application/vnd.apple.mpegurl';
   volume: number;
   wideScreen: boolean;
 }

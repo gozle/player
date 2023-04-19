@@ -30,7 +30,7 @@ type Playlist = {
   uri: string;
 };
 
-export const useQualityLevels = (url: string) => {
+export const useQualityLevels = (url: string, skip?: boolean) => {
   const [levels, setLevels] = useState<QualityLevel[]>([]);
 
   const setCodecs = (codecs: string[], level: QualityLevel) => {
@@ -95,60 +95,62 @@ export const useQualityLevels = (url: string) => {
 
   useEffect(() => {
     let mounted = true;
-    fetch(url)
-      .then(async (res) => {
-        const parser = new Parser();
+    if (!skip) {
+      fetch(url)
+        .then(async (res) => {
+          const parser = new Parser();
 
-        parser.push(await res.text());
-        parser.end();
+          parser.push(await res.text());
+          parser.end();
 
-        if (mounted) {
-          const levels: QualityLevel[] = [];
-          const levelsWithKnownCodecs: QualityLevel[] = [];
+          if (mounted) {
+            const levels: QualityLevel[] = [];
+            const levelsWithKnownCodecs: QualityLevel[] = [];
 
-          parser.manifest.playlists.forEach((el: Playlist) => {
-            const level: QualityLevel = {
-              bitrate: el.attributes.BANDWIDTH || 0,
-              height: el.attributes.RESOLUTION
-                ? el.attributes.RESOLUTION.height
-                : 0,
-              name: el.attributes.NAME ? el.attributes.NAME : undefined,
-              url: el.uri,
-              width: el.attributes.RESOLUTION
-                ? el.attributes.RESOLUTION.width
-                : 0,
-            };
+            parser.manifest.playlists.forEach((el: Playlist) => {
+              const level: QualityLevel = {
+                bitrate: el.attributes.BANDWIDTH || 0,
+                height: el.attributes.RESOLUTION
+                  ? el.attributes.RESOLUTION.height
+                  : 0,
+                name: el.attributes.NAME ? el.attributes.NAME : undefined,
+                url: el.uri,
+                width: el.attributes.RESOLUTION
+                  ? el.attributes.RESOLUTION.width
+                  : 0,
+              };
 
-            setCodecs(
-              (el.attributes.CODECS || '')
-                .split(/[ ,]+/)
-                .filter((c: string | undefined) => c),
-              level,
+              setCodecs(
+                (el.attributes.CODECS || '')
+                  .split(/[ ,]+/)
+                  .filter((c: string | undefined) => c),
+                level,
+              );
+
+              if (!level.unknownCodecs?.length)
+                levelsWithKnownCodecs.push(level);
+
+              levels.push(level);
+            });
+
+            // Filter out levels with unknown codecs if it does not remove all levels
+            const stripUnknownCodecLevels =
+              levelsWithKnownCodecs.length > 0 &&
+              levelsWithKnownCodecs.length < levels.length;
+
+            setLevels(
+              filterAndSortMediaOptions(
+                stripUnknownCodecLevels ? levelsWithKnownCodecs : levels,
+              ),
             );
-
-            if (!level.unknownCodecs?.length) levelsWithKnownCodecs.push(level);
-
-            levels.push(level);
-          });
-
-          // Filter out levels with unknown codecs if it does not remove all levels
-          const stripUnknownCodecLevels =
-            levelsWithKnownCodecs.length > 0 &&
-            levelsWithKnownCodecs.length < levels.length;
-
-          setLevels(
-            filterAndSortMediaOptions(
-              stripUnknownCodecLevels ? levelsWithKnownCodecs : levels,
-            ),
-          );
-        }
-      })
-      .catch((err) => err);
-
+          }
+        })
+        .catch((err) => err);
+    }
     return () => {
       mounted = false;
     };
-  }, [url]);
+  }, [skip, url]);
 
   return levels;
 };
