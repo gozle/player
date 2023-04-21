@@ -17,7 +17,7 @@ export const useQualityDetails = (url: string) => {
     let mounted = true;
 
     if (url)
-      fetch(url)
+      fetch(url, { mode: 'no-cors' })
         .then(async (res) => {
           const parser = new Parser();
 

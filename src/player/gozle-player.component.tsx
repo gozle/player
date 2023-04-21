@@ -143,34 +143,37 @@ export const GozlePlayer = ({
     if (containerRef.current && playerRef.current) {
       const HTML5VideoElement = playerRef.current.getInternalPlayer();
 
-      if (HTML5VideoElement)
-        console.log(HTML5VideoElement.webkitSupportsPresentationMode);
-
-      if (
-        HTML5VideoElement &&
-        HTML5VideoElement.webkitSupportsPresentationMode &&
-        typeof HTML5VideoElement.webkitSetPresentationMode === 'function'
-      ) {
-        HTML5VideoElement.webkitSetPresentationMode(
-          fullScreen ? 'fullscreen' : 'inline',
-        );
-      } else {
-        if (fullScreen) screenfull.request(containerRef.current);
-        else screenfull.exit();
+      if (HTML5VideoElement) {
+        if (
+          HTML5VideoElement.webkitSupportsPresentationMode &&
+          typeof HTML5VideoElement.webkitSetPresentationMode === 'function'
+        ) {
+          HTML5VideoElement.webkitSetPresentationMode(
+            fullScreen ? 'fullscreen' : 'inline',
+          );
+        } else if (
+          typeof screenfull.request === 'function' &&
+          typeof screenfull.exit === 'function'
+        ) {
+          if (fullScreen) screenfull.request(containerRef.current);
+          else screenfull.exit();
+        }
       }
     }
   }, [fullScreen]);
 
   useEffect(() => {
-    const listener = () =>
-      setFullScreen((prev) =>
-        prev === screenfull.isFullscreen ? prev : screenfull.isFullscreen,
-      );
+    if (typeof screenfull.on === 'function') {
+      const listener = () =>
+        setFullScreen((prev) =>
+          prev === screenfull.isFullscreen ? prev : screenfull.isFullscreen,
+        );
 
-    screenfull.on('change', listener);
-    return () => {
-      screenfull.off('change', listener);
-    };
+      screenfull.on('change', listener);
+      return () => {
+        screenfull.off('change', listener);
+      };
+    }
   }, []);
 
   // useEffect(() => {
