@@ -1,11 +1,11 @@
 import type Hls from 'hls.js';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { OnProgressProps } from 'react-player/base';
 import ReactPlayer from 'react-player/file';
 import screenfull from 'screenfull';
 import { buildAbsoluteURL } from 'url-toolkit';
-import { Loader } from '../components/loader';
 
+import { Loader } from '../components/loader';
 import {
   useQualityDetails,
   useQualityLevels,
@@ -34,7 +34,7 @@ type P = {
   toggleWideScreen: () => void;
   type: 'ad' | 'video';
   url: string;
-  videoType: 'video/mp4' | 'application/vnd.apple.mpegurl';
+  videoType: 'video/mp4' | 'application/vnd.apple.mpegurl' | string;
   wideScreen: boolean;
 };
 
@@ -55,6 +55,7 @@ export const GozlePlayer = ({
   onEnded,
   thumbnail,
   toggleWideScreen,
+  type,
   url,
   wideScreen,
   ...props
@@ -110,7 +111,7 @@ export const GozlePlayer = ({
   const handleDuration = (duration: number) => setDuration(duration);
 
   const handleEnded = () => {
-    if (props.type === 'ad') props.onSkip?.();
+    if (type === 'ad') props.onSkip?.();
     else if (onEnded) onEnded();
   };
 
@@ -121,7 +122,7 @@ export const GozlePlayer = ({
       setPlayedSeconds(progress.playedSeconds);
     }
     if (qualityChanging) {
-      playerRef.current?.seekTo(played);
+      if (!qualityLevelDetails.live) playerRef.current?.seekTo(played);
       setQualityChanging(false);
     }
   };
@@ -202,6 +203,14 @@ export const GozlePlayer = ({
       setPlayed(0);
       setPlayedSeconds(0);
     }
+  }, [type, url]);
+
+  useEffect(() => {
+    if (url && playerRef.current?.getInternalPlayer())
+      playerRef.current
+        .getInternalPlayer()
+        .play()
+        .then(() => setPlaying(true));
   }, [url]);
 
   useEffect(() => {
@@ -257,7 +266,7 @@ export const GozlePlayer = ({
     setQuality,
     setRate,
     setVolume,
-    isAd: props.type === 'ad',
+    isAd: type === 'ad',
     toggleFullScreen,
     toggleWideScreen,
     volume,
