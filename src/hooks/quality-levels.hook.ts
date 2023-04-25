@@ -96,7 +96,7 @@ export const useQualityLevels = (url: string, skip?: boolean) => {
   useEffect(() => {
     let mounted = true;
     if (!skip) {
-      fetch(url, { mode: 'no-cors' })
+      fetch(url)
         .then(async (res) => {
           const parser = new Parser();
 
