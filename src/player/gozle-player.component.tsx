@@ -71,10 +71,9 @@ export const GozlePlayer = ({
   const [playedSeconds, setPlayedSeconds] = useState<number>(0);
   const [playing, setPlaying] = useState<boolean>(false);
   const [quality, setQuality] = useState<number>(-1);
-  const [qualityChanging, setQualityChanging] = useState<boolean>(false);
   const [qualityUrl, setQualityUrl] = useState<string>('');
   const [rate, setRate] = useState<number>(1);
-  const [ready, setReady] = useState<boolean>(false);
+  const [ready, setReady] = useState<string>('');
   const [volume, setVolume] = useState<number>(1);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -117,19 +116,22 @@ export const GozlePlayer = ({
 
   const handleProgress = (progress: OnProgressProps) => {
     setLoaded(progress.loaded);
-    if (!qualityChanging && !playedLock) {
+    if (!playedLock) {
       setPlayed(progress.played);
       setPlayedSeconds(progress.playedSeconds);
-    }
-    if (qualityChanging) {
-      if (!qualityLevelDetails.live) playerRef.current?.seekTo(played);
-      setQualityChanging(false);
     }
   };
 
   const handleReady = () => {
-    setReady(true);
     if (playerRef.current) {
+      const currentUrl = qualityUrl || url;
+
+      // If quality changed seekTo palyedSeconds
+      if (ready !== currentUrl) {
+        playerRef.current.seekTo(playedSeconds, 'seconds');
+        setReady(currentUrl);
+      }
+
       hlsRef.current = playerRef.current.getInternalPlayer('hls') as Hls;
       playerRef.current
         .getInternalPlayer()
@@ -177,17 +179,7 @@ export const GozlePlayer = ({
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (hlsRef.current && quality !== -1) {
-  //     const index = hlsRef.current.levels.findIndex(
-  //       (el) => el.height === levels[quality].height,
-  //     );
-  //     hlsRef.current.currentLevel = index;
-  //   }
-  // }, [quality]);
-
   useEffect(() => {
-    setQualityChanging(true);
     if (quality !== -1)
       setQualityUrl(
         buildAbsoluteURL(url, qualityLevels[quality].url, {
