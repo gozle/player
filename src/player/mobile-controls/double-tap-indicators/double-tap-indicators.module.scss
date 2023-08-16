@@ -9,7 +9,7 @@
   background: transparent;
   pointer-events: none;
 
-  overflow: hidden
+  overflow: hidden;
 }
 
 .indicator {
@@ -48,8 +48,5 @@
 .icon {
   height: 2em;
   width: 2em;
-
-  & > svg {
-    fill: white;
-  }
+  color: currentColor;
 }

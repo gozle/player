@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { ArrowRightIcon } from '../../icons';
 
 import { GozlePlayerContext } from '../../player/gozle-player.context';
 
@@ -26,10 +27,15 @@ export const SkipButton = ({ className = '', onClick, skipoffset = 5 }: P) => {
       onClick={handleClick}
       disabled={disabled}
     >
-      {i18n.skip}
-      {playedSeconds <= skipoffset
-        ? ` (${Math.round(skipoffset - playedSeconds)})`
-        : ''}
+      <span>
+        {i18n.skip}{' '}
+        {playedSeconds <= skipoffset
+          ? ` (${Math.round(skipoffset - playedSeconds)})`
+          : ''}
+      </span>
+      <span className={styles.icon}>
+        <ArrowRightIcon />
+      </span>
     </button>
   ) : (
     <></>

@@ -1,14 +1,4 @@
 .button {
-  & > svg {
-    fill: none;
-
-    & > path {
-      fill: white;
-      stroke: white;
-    }
-
-    & > rect {
-      fill: white;
-    }
-  }
+  color: currentColor;
+  vertical-align: middle;
 }

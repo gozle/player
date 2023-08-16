@@ -37,6 +37,10 @@
   left: 0;
   background-color: #00d1ff;
   pointer-events: none;
+
+  [data-locked='true'] {
+    background-color: #fc0;
+  }
 }
 
 .pointer {

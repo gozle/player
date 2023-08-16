@@ -4,7 +4,7 @@ import { ArrowRightIcon } from '../../icons';
 import { GozlePlayerContext } from '../../player/gozle-player.context';
 
 import { QualitySelectScreen } from './quality-select-screen';
-import { RateSelectScreen } from './rate-select-screen';
+import { RateSelectScreen } from './playback-rate-select-screen';
 import styles from './settings-popup.module.scss';
 
 export const SettingsPopup = () => {
@@ -16,10 +16,10 @@ export const SettingsPopup = () => {
     i18n,
     quality,
     qualityLevels,
-    rate,
-    rateLevels,
+    playbackRate,
+    playbackRateLevels,
     setQuality,
-    setRate,
+    setPlaybackRate,
   } = useContext(GozlePlayerContext);
 
   const handleBackClick = () => setView('main');
@@ -36,12 +36,12 @@ export const SettingsPopup = () => {
       handleRateLevelClick: (event: React.MouseEvent) => {
         const value = event.currentTarget.getAttribute('data-value');
         if (value) {
-          setRate(Number(value));
+          setPlaybackRate(Number(value));
           setView('main');
         }
       },
     }),
-    [setQuality, setRate],
+    [setQuality, setPlaybackRate],
   );
 
   const maxHeight = `calc(${containerHeight}px - 5em - 50px)`;
@@ -72,7 +72,8 @@ export const SettingsPopup = () => {
           <div className={styles.label}>{i18n.rate}</div>
           <div className={styles.value}>
             <span>
-              {rateLevels.find((el) => el.value === rate)?.name || ''}
+              {playbackRateLevels.find((el) => el.value === playbackRate)
+                ?.name || ''}
             </span>
             <div className={styles.icon}>
               <ArrowRightIcon />

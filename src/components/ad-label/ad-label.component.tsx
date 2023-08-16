@@ -1,11 +1,15 @@
-import React, { useContext } from 'react';
-
-import { GozlePlayerContext } from '../../player/gozle-player.context';
+import React from 'react';
 
 import styles from './ad-label.module.scss';
 
-export const AdLabel = () => {
-  const { i18n } = useContext(GozlePlayerContext);
+interface P {
+  landingUrl?: string;
+  title?: string;
+}
 
-  return <div className={styles.label}>{i18n.advertisement}</div>;
-};
+export const AdLabel = ({ landingUrl, title }: P) => (
+  <div className={styles.label_container}>
+    <div className={styles.title}>{title}</div>
+    <div className={styles.ad}>{landingUrl}</div>
+  </div>
+);

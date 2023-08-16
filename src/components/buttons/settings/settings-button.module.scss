@@ -1,13 +1,3 @@
 .button {
-  & > svg {
-    fill: none;
-
-    & > path {
-      stroke: white;
-    }
-
-    & > circle {
-      stroke: white;
-    }
-  }
+  color: currentColor;
 }

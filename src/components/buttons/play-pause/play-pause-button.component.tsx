@@ -7,7 +7,7 @@ import styles from './play-pause-button.module.scss';
 
 type P = {
   playing: boolean;
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 export const PlayPauseButton = ({ playing, onClick }: P) => (

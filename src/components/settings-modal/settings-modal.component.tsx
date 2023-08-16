@@ -14,10 +14,10 @@ export const SettingsModal = ({ onCloseModal }: P) => {
     i18n,
     quality,
     qualityLevels,
-    rate,
-    rateLevels,
+    playbackRate,
+    playbackRateLevels,
     setQuality,
-    setRate,
+    setPlaybackRate,
   } = useContext(GozlePlayerContext);
 
   const { handleQualitySelect, handleRateSelect } = useMemo(
@@ -25,9 +25,9 @@ export const SettingsModal = ({ onCloseModal }: P) => {
       handleQualitySelect: (event: React.ChangeEvent<HTMLSelectElement>) =>
         setQuality(parseInt(event.target.value)),
       handleRateSelect: (event: React.ChangeEvent<HTMLSelectElement>) =>
-        setRate(Number(event.target.value)),
+        setPlaybackRate(Number(event.target.value)),
     }),
-    [setQuality, setRate],
+    [setQuality, setPlaybackRate],
   );
 
   const selectedQuality = autoLevelEnabled ? -1 : quality;
@@ -41,12 +41,12 @@ export const SettingsModal = ({ onCloseModal }: P) => {
       }}
     >
       <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.title}>Настройки воспроизведения</div>
+        <div className={styles.title}>{i18n.playbackSettings}</div>
         <div className={styles.row}>
           <div className={styles.label}>{i18n.rate}</div>
           <div className={styles.value}>
-            <select value={rate} onChange={handleRateSelect}>
-              {rateLevels.map((el, i) => (
+            <select value={playbackRate} onChange={handleRateSelect}>
+              {playbackRateLevels.map((el, i) => (
                 <option key={i} value={el.value}>
                   {el.name}
                 </option>
@@ -72,7 +72,7 @@ export const SettingsModal = ({ onCloseModal }: P) => {
           </div>
         )}
         <div className={styles.button_container}>
-          <button onClick={onCloseModal}>Ок</button>
+          <button onClick={onCloseModal}>{i18n.ok}</button>
         </div>
       </div>
     </div>

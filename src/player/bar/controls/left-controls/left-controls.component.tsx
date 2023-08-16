@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 
 import { PlayPauseButton } from '../../../../components/buttons';
 import { Live } from '../../../../components/live';
-import { formatDuration } from '../../../../helpers';
+import { DurationUtil } from '../../../../lib/utils';
 import { GozlePlayerContext } from '../../../gozle-player.context';
 
 import styles from './left-controls.module.scss';
@@ -33,8 +33,8 @@ export const LeftControls = React.forwardRef<HTMLDivElement, P>(
           <Live />
         ) : (
           <div className={styles.timings}>
-            {formatDuration(Math.round(playedSeconds))} /{' '}
-            {formatDuration(duration)}
+            {DurationUtil.formatDuration(Math.round(playedSeconds))} /{' '}
+            {DurationUtil.formatDuration(duration)}
           </div>
         )}
       </div>

@@ -11,8 +11,9 @@ type P = {
 
 export const Settings = React.forwardRef<{ settingsOpen: boolean }, P>(
   ({ className }, outerRef) => {
-    const ref = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState<boolean>(false);
+
+    const ref = useRef<HTMLDivElement>(null);
 
     const touchscreen = useTouchscreen();
 

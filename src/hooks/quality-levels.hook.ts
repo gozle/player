@@ -1,20 +1,11 @@
+import Hls from 'hls.js';
 // @ts-ignore
 import { Parser } from 'm3u8-parser';
-import { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { buildAbsoluteURL } from 'url-toolkit';
+import { QualityLevel } from '../lib/types';
 
-import { CodecType, isCodecSupportedInMp4, isCodecType } from '../utils/codecs';
-
-export type QualityLevel = {
-  audioCodec?: string;
-  bitrate: number;
-  height: number;
-  name?: string;
-  textCodec?: string;
-  unknownCodecs?: string[];
-  url: string;
-  videoCodec?: string;
-  width: number;
-};
+import { CodecType, isCodecSupportedInMp4, isCodecType } from '../lib/utils';
 
 type Playlist = {
   attributes: {
@@ -30,7 +21,11 @@ type Playlist = {
   uri: string;
 };
 
-export const useQualityLevels = (url: string, skip?: boolean) => {
+export const useQualityLevels = (
+  src: string,
+  api: React.RefObject<Hls | null>,
+  ready: boolean,
+) => {
   const [levels, setLevels] = useState<QualityLevel[]>([]);
 
   const setCodecs = (codecs: string[], level: QualityLevel) => {
@@ -93,10 +88,9 @@ export const useQualityLevels = (url: string, skip?: boolean) => {
     });
   };
 
-  useEffect(() => {
-    let mounted = true;
-    if (!skip) {
-      fetch(url)
+  const setLevelsFromSrc = useCallback(
+    (src: string, mounted: boolean) => {
+      fetch(src)
         .then(async (res) => {
           const parser = new Parser();
 
@@ -114,7 +108,7 @@ export const useQualityLevels = (url: string, skip?: boolean) => {
                   ? el.attributes.RESOLUTION.height
                   : 0,
                 name: el.attributes.NAME ? el.attributes.NAME : undefined,
-                url: el.uri,
+                url: buildAbsoluteURL(src, el.uri, { alwaysNormalize: true }),
                 width: el.attributes.RESOLUTION
                   ? el.attributes.RESOLUTION.width
                   : 0,
@@ -146,11 +140,35 @@ export const useQualityLevels = (url: string, skip?: boolean) => {
           }
         })
         .catch((err) => err);
+    },
+    [src],
+  );
+
+  const setLevelsFromApi = useCallback((api: Hls) => {
+    setLevels(
+      api.levels.map((el) => ({
+        bitrate: el.bitrate,
+        height: el.height,
+        url: el.uri,
+        width: el.width,
+        audioCodec: el.audioCodec,
+        name: el.name,
+        unknownCodecs: el.unknownCodecs,
+        videoCodec: el.videoCodec,
+      })),
+    );
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    if (ready) {
+      if (api.current === null) setLevelsFromSrc(src, mounted);
+      else setLevelsFromApi(api.current);
     }
     return () => {
       mounted = false;
     };
-  }, [skip, url]);
+  }, [ready, api, src, setLevelsFromSrc, setLevelsFromApi]);
 
   return levels;
 };

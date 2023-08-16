@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { ArrowRightIcon, OkIcon } from '../../../icons';
 import { GozlePlayerContext } from '../../../player/gozle-player.context';
 
-import styles from './rate-select-screen.module.scss';
+import styles from './playback-rate-select-screen.module.scss';
 
 type P = {
   className?: string;
@@ -20,7 +20,8 @@ export const RateSelectScreen = ({
   onLevelClick,
   rowClassName = '',
 }: P) => {
-  const { i18n, rate, rateLevels } = useContext(GozlePlayerContext);
+  const { i18n, playbackRate, playbackRateLevels } =
+    useContext(GozlePlayerContext);
 
   return (
     <div className={className} style={{ maxHeight }}>
@@ -31,7 +32,7 @@ export const RateSelectScreen = ({
         <div className={styles.label}>{i18n.playbackRate}</div>
       </div>
       <ul className={styles.levels_list}>
-        {rateLevels.map((el) => (
+        {playbackRateLevels.map((el) => (
           <li
             key={el.name}
             className={styles.list_item + ' ' + rowClassName}
@@ -39,7 +40,7 @@ export const RateSelectScreen = ({
             data-value={el.value}
           >
             <div className={styles.icon}>
-              <OkIcon fill={rate === el.value ? 'white' : 'none'} />
+              <OkIcon fill={playbackRate === el.value ? 'white' : 'none'} />
             </div>
             <div>{el.name}</div>
           </li>

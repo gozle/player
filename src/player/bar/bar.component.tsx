@@ -192,12 +192,12 @@ export const Bar = (props: P) => {
         <>
           <div className={styles.top_bar} onClick={(e) => e.stopPropagation()}>
             <AdLabel />
+            <SkipButton
+              className={styles.skip_button}
+              onClick={handleSkipClick}
+              skipoffset={props.skipoffset}
+            />
           </div>
-          <SkipButton
-            className={styles.skip_button}
-            onClick={handleSkipClick}
-            skipoffset={props.skipoffset}
-          />
         </>
       )}
       <div className={styles.bar} onClick={(e) => e.stopPropagation()}>

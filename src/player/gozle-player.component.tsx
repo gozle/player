@@ -1,58 +1,44 @@
 import type Hls from 'hls.js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { OnProgressProps } from 'react-player/base';
-import ReactPlayer from 'react-player/file';
 import screenfull from 'screenfull';
-import { buildAbsoluteURL } from 'url-toolkit';
 
 import { Loader } from '../components/loader';
-import {
-  useQualityDetails,
-  useQualityLevels,
-  useResizeObserver,
-  useTouchscreen,
-} from '../hooks';
+import { useResizeObserver, useTouchscreen } from '../hooks';
 
 import { Bar } from './bar';
-import {
-  defaultI18n,
-  GozlePlayerContext,
-  IGozlePlayerContext,
-  Internationalization,
-} from './gozle-player.context';
+import { GozlePlayerContext } from './gozle-player.context';
 import styles from './gozle-player.module.scss';
 import { MobileControls } from './mobile-controls';
+import { HLSVideoElement } from '../components/hls-video/hls-video.component';
+import { I18n, QualityLevel, QualityLevelDetails } from '../lib/types';
+import { defaultI18n, getPlaybackRateLevels } from '../lib/constants';
+import { PlayPauseButton } from '../components/buttons';
+import { HtmlVideoElementUtil } from '../lib/utils';
+import { IGozlePlayerContext } from '../lib/interfaces';
 
 type P = {
   className?: string;
-  i18n?: Internationalization;
+  firstPlay?: boolean;
+  i18n?: I18n;
   landingUrl?: string;
   onEnded?: () => void;
+  onFirstPlay: () => void;
   onSkip?: () => void;
   skipoffset?: number;
   thumbnail?: string;
   toggleWideScreen: () => void;
   type: 'ad' | 'video';
   url: string;
-  videoType: 'video/mp4' | 'application/vnd.apple.mpegurl' | string;
+  videoType: 'application/vnd.apple.mpegurl';
   wideScreen: boolean;
 };
 
-const rateLevels = (normal: string) => [
-  { name: '0.25', value: 0.25 },
-  { name: '0.5', value: 0.5 },
-  { name: '0.75', value: 0.75 },
-  { name: normal, value: 1 },
-  { name: '1.25', value: 1.25 },
-  { name: '1.5', value: 1.5 },
-  { name: '1.75', value: 1.75 },
-  { name: '2', value: 2 },
-];
-
 export const GozlePlayer = ({
   className = '',
+  firstPlay,
   i18n = defaultI18n,
   onEnded,
+  onFirstPlay,
   thumbnail,
   toggleWideScreen,
   type,
@@ -60,7 +46,6 @@ export const GozlePlayer = ({
   wideScreen,
   ...props
 }: P) => {
-  const [autoLevelEnabled, setAutoLevelEnabled] = useState<boolean>(true);
   const [buffering, setBuffering] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(0);
   const [fullScreen, setFullScreen] = useState<boolean>(false);
@@ -69,101 +54,137 @@ export const GozlePlayer = ({
   const [played, setPlayed] = useState<number>(0);
   const [playedLock, setPlayedLock] = useState<boolean>(false);
   const [playedSeconds, setPlayedSeconds] = useState<number>(0);
-  const [playing, setPlaying] = useState<boolean>(false);
+  const [playing, setPlaying] = useState<boolean>(true);
   const [quality, setQuality] = useState<number>(-1);
-  const [qualityUrl, setQualityUrl] = useState<string>('');
-  const [rate, setRate] = useState<number>(1);
-  const [ready, setReady] = useState<string>('');
+  const [playbackRate, setPlaybackRate] = useState<number>(1);
   const [volume, setVolume] = useState<number>(1);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const hlsRef = useRef<Hls | null>(null);
-  const playerRef = useRef<ReactPlayer>(null);
+
+  const playerRef = useRef<{
+    api: Hls | null;
+    autoLevelEnabled: boolean;
+    nativeEl: HTMLVideoElement | null;
+    qualityLevels: QualityLevel[];
+    qualityLevelDetails: QualityLevelDetails;
+    onQualityLevelChange: (index: number) => void;
+    ready: boolean;
+  }>(null);
 
   const { width: _ } = useResizeObserver(containerRef);
 
-  const qualityLevels = useQualityLevels(url, props.videoType === 'video/mp4');
-
-  const qualityLevelDetails = useQualityDetails(
-    qualityUrl || qualityLevels.length
-      ? buildAbsoluteURL(url, qualityLevels[0].url, { alwaysNormalize: true })
-      : '',
-  );
-
   const touchscreen = useTouchscreen();
 
-  const calculateAndSetPlayed = (
-    pageX: number,
-    timeRef: React.RefObject<HTMLDivElement>,
-  ) => {
-    if (timeRef.current) {
-      const targetRect = timeRef.current.getBoundingClientRect();
-      if (targetRect.width) {
-        let fraction = (pageX - targetRect.x) / targetRect.width;
-        if (fraction > 1) fraction = 1;
-        else if (fraction < 0) fraction = 0;
-        setPlayed(fraction);
+  const calculateAndSetPlayed = useCallback(
+    (pageX: number, timeRef: React.RefObject<HTMLDivElement>) => {
+      if (timeRef.current) {
+        const targetRect = timeRef.current.getBoundingClientRect();
+        if (targetRect.width) {
+          let fraction = (pageX - targetRect.x) / targetRect.width;
+          if (fraction > 1) fraction = 1;
+          else if (fraction < 0) fraction = 0;
+          setPlayed(fraction);
+        }
       }
-    }
-  };
+    },
+    [],
+  );
 
-  const handleDuration = (duration: number) => setDuration(duration);
+  const handleDuration = useCallback(
+    ({ currentTarget }: React.SyntheticEvent<HTMLVideoElement>) =>
+      setDuration(currentTarget.duration),
+    [],
+  );
 
   const handleEnded = () => {
     if (type === 'ad') props.onSkip?.();
     else if (onEnded) onEnded();
   };
 
-  const handleProgress = (progress: OnProgressProps) => {
-    setLoaded(progress.loaded);
-    if (!playedLock) {
-      setPlayed(progress.played);
-      setPlayedSeconds(progress.playedSeconds);
-    }
-  };
+  const handleProgress = useCallback(
+    ({ currentTarget }: React.SyntheticEvent<HTMLVideoElement>) => {
+      const currentEnd =
+        HtmlVideoElementUtil.getCurrentTimeRangeEnd(currentTarget);
 
-  const handleReady = () => {
-    if (playerRef.current) {
-      const currentUrl = qualityUrl || url;
+      if (currentEnd !== null) setLoaded(currentEnd / currentTarget.duration);
+    },
+    [],
+  );
 
-      // If quality changed seekTo palyedSeconds
-      if (ready !== currentUrl) {
-        playerRef.current.seekTo(playedSeconds, 'seconds');
-        setReady(currentUrl);
+  const handleTimeUpdate = useCallback(
+    ({ currentTarget }: React.SyntheticEvent<HTMLVideoElement>) => {
+      const playedSeconds = currentTarget.currentTime;
+
+      if (!playedLock) {
+        setPlayedSeconds(playedSeconds);
+        setPlayed(playedSeconds / currentTarget.duration);
       }
+    },
+    [playedLock],
+  );
 
-      hlsRef.current = playerRef.current.getInternalPlayer('hls') as Hls;
-      playerRef.current
-        .getInternalPlayer()
-        .play()
-        .then(() => setPlaying(true));
-    }
-  };
-
-  const toggleFullScreen = () => setFullScreen((prev) => !prev);
-
-  useEffect(() => {
-    if (containerRef.current && playerRef.current) {
-      const HTML5VideoElement = playerRef.current.getInternalPlayer();
+  const toggleFullScreen = useCallback(() => {
+    if (containerRef.current && playerRef.current?.nativeEl) {
+      const HTML5VideoElement = playerRef.current.nativeEl as HTMLVideoElement &
+        Record<string, unknown>;
 
       if (HTML5VideoElement) {
         if (
-          HTML5VideoElement.webkitSupportsPresentationMode &&
-          typeof HTML5VideoElement.webkitSetPresentationMode === 'function'
+          'webkitSupportsPresentationMode' in HTML5VideoElement &&
+          typeof HTML5VideoElement['webkitSetPresentationMode'] === 'function'
         ) {
           HTML5VideoElement.webkitSetPresentationMode(
-            fullScreen ? 'fullscreen' : 'inline',
+            fullScreen ? 'inline' : 'fullscreen',
           );
+
+          setFullScreen((prev) => !prev);
         } else if (
           typeof screenfull.request === 'function' &&
           typeof screenfull.exit === 'function'
         ) {
-          if (fullScreen) screenfull.request(containerRef.current);
-          else screenfull.exit();
+          if (fullScreen) screenfull.exit();
+          else screenfull.request(containerRef.current);
+
+          setFullScreen((prev) => !prev);
         }
       }
     }
   }, [fullScreen]);
+
+  const seekTo = useCallback(
+    (amount: number, type?: 'fraction' | 'seconds') => {
+      if (playerRef.current?.nativeEl) {
+        const duration = playerRef.current.nativeEl.duration;
+
+        const seekToTime = Math.max(
+          0,
+          Math.min(type === 'fraction' ? amount * duration : amount, duration),
+        );
+
+        playerRef.current.nativeEl.currentTime = seekToTime;
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (playerRef.current?.nativeEl) {
+      const listener = () => setFullScreen((prev) => !prev);
+
+      playerRef.current.nativeEl.addEventListener(
+        'webkitendfullscreen',
+        listener,
+      );
+
+      return () => {
+        if (playerRef.current?.nativeEl)
+          playerRef.current.nativeEl.removeEventListener(
+            'webkitendfullscreen',
+            listener,
+          );
+      };
+    }
+  });
 
   useEffect(() => {
     if (typeof screenfull.on === 'function') {
@@ -180,14 +201,8 @@ export const GozlePlayer = ({
   }, []);
 
   useEffect(() => {
-    if (quality !== -1)
-      setQualityUrl(
-        buildAbsoluteURL(url, qualityLevels[quality].url, {
-          alwaysNormalize: true,
-        }),
-      );
-    else setQualityUrl('');
-  }, [url, quality, qualityLevels]);
+    playerRef.current?.onQualityLevelChange(quality);
+  }, [quality]);
 
   useEffect(() => {
     if (url) {
@@ -198,22 +213,9 @@ export const GozlePlayer = ({
   }, [type, url]);
 
   useEffect(() => {
-    if (url && playerRef.current?.getInternalPlayer())
-      playerRef.current
-        .getInternalPlayer()
-        .play()
-        .then(() => setPlaying(true));
-  }, [url]);
-
-  useEffect(() => {
-    setAutoLevelEnabled(!qualityUrl);
-  }, [qualityUrl]);
-
-  useEffect(() => {
-    if (playerRef.current)
-      if (playerRef.current.getInternalPlayer())
-        playerRef.current.getInternalPlayer().playbackRate = rate;
-  }, [rate]);
+    if (playerRef.current?.nativeEl)
+      playerRef.current.nativeEl.playbackRate = playbackRate;
+  }, [playbackRate]);
 
   useEffect(() => {
     const div = document.createElement('div');
@@ -227,11 +229,15 @@ export const GozlePlayer = ({
   }, []);
 
   const contextValue: IGozlePlayerContext = {
-    autoLevelEnabled,
+    autoLevelEnabled: playerRef.current
+      ? playerRef.current.autoLevelEnabled
+      : true,
     buffering,
     autoQualityName:
-      hlsRef.current && autoLevelEnabled && hlsRef.current.currentLevel !== -1
-        ? hlsRef.current.levels[hlsRef.current.currentLevel].name || undefined
+      playerRef.current?.api?.autoLevelEnabled &&
+      playerRef.current.api.currentLevel !== -1
+        ? playerRef.current.api.levels[playerRef.current.api.currentLevel]
+            .name || undefined
         : undefined,
     calculateAndSetPlayed,
     containerHeight: containerRef.current?.getBoundingClientRect().height || 0,
@@ -239,7 +245,7 @@ export const GozlePlayer = ({
     duration,
     fullScreen,
     i18n,
-    live: qualityLevelDetails.live,
+    live: playerRef.current?.qualityLevelDetails.live || false,
     loaded,
     muted,
     played,
@@ -247,16 +253,16 @@ export const GozlePlayer = ({
     playedSeconds,
     playing,
     quality,
-    qualityLevels,
-    rate,
-    rateLevels: rateLevels(i18n.normal),
-    seekTo: playerRef.current?.seekTo,
+    qualityLevels: playerRef.current?.qualityLevels || [],
+    playbackRate,
+    playbackRateLevels: getPlaybackRateLevels(i18n.normal),
+    seekTo: seekTo,
     setMuted,
     setPlayed,
     setPlayedLock,
     setPlaying,
     setQuality,
-    setRate,
+    setPlaybackRate,
     setVolume,
     isAd: type === 'ad',
     toggleFullScreen,
@@ -265,38 +271,49 @@ export const GozlePlayer = ({
     wideScreen,
   };
 
-  // Boolean(
-  //   props.hls &&
-  //     props.hls.currentLevel !== -1 &&
-  //     props.hls.levels[props.hls.currentLevel].details?.live,
-  // );
-
   return (
     <div className={styles.container + ' ' + className} ref={containerRef}>
       <GozlePlayerContext.Provider value={contextValue}>
         <div className={styles.player_container}>
-          <ReactPlayer
-            config={{ hlsOptions: { liveSyncDurationCount: 9 } }}
-            height="100%"
-            light={thumbnail}
-            muted={muted}
-            onBuffer={() => setBuffering(true)}
-            onBufferEnd={() => setBuffering(false)}
-            onDuration={handleDuration}
-            onEnded={handleEnded}
-            onPause={() => setPlaying(false)}
-            onProgress={handleProgress}
-            onReady={handleReady}
-            playing={!playedLock && playing}
-            playsinline
-            ref={playerRef}
-            style={{ aspectRatio: '16/9', display: 'flex' }}
-            url={qualityUrl || url}
-            volume={volume}
-            width="100%"
-          />
+          {firstPlay ? (
+            <HLSVideoElement
+              config={{ hls: { liveSyncDurationCount: 9 } }}
+              controls={false}
+              muted={muted}
+              playsInline
+              playing={!playedLock && playing}
+              preload="metadata"
+              ref={playerRef}
+              onDurationChange={handleDuration}
+              onEnded={handleEnded}
+              onPlaying={() => setBuffering(false)}
+              onPause={() => setPlaying(false)}
+              onProgress={handleProgress}
+              onTimeUpdate={handleTimeUpdate}
+              onWaiting={() => setBuffering(true)}
+              poster={thumbnail}
+              src={url}
+              style={{
+                aspectRatio: '16/9',
+                display: 'flex',
+                height: '100%',
+                width: '100%',
+              }}
+              volume={volume}
+            />
+          ) : (
+            <div
+              className={styles.first_play}
+              onClick={onFirstPlay}
+              style={{ backgroundImage: `url(${thumbnail})` }}
+            >
+              <div className={styles.first_play_btn}>
+                <PlayPauseButton playing={false} />
+              </div>
+            </div>
+          )}
         </div>
-        {ready ? (
+        {playerRef.current?.ready ? (
           touchscreen ? (
             <MobileControls {...props} />
           ) : (

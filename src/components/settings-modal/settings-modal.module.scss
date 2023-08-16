@@ -1,3 +1,4 @@
+@import '../../scss/constants.scss';
 @import '../../scss/mixins.scss';
 
 .modal {
@@ -49,7 +50,7 @@
 
   & > select {
     width: 100%;
-    padding: 1em;
+    padding: 0.5em 1em;
     border-radius: 0.25em;
     border: 1px solid rgba(0, 0, 0, 0.1);
     background: #f1f1f1;
@@ -71,7 +72,7 @@
   }
 }
 
-@media (min-width: 480px) {
+@media (min-width: $media-min-width-1) {
   .popup {
     font-size: 1em;
   }

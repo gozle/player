@@ -1,68 +1,6 @@
-import { createContext, Dispatch, SetStateAction } from 'react';
-
-import { QualityLevel } from '../hooks';
-
-export type RateLevel = { name: string; value: number };
-
-export type Internationalization = {
-  advertisement: string;
-  auto: string;
-  normal: string;
-  playbackRate: string;
-  quality: string;
-  rate: string;
-  skip: string;
-};
-
-export const defaultI18n: Internationalization = {
-  advertisement: 'Advertisement',
-  auto: 'Auto',
-  normal: 'Normal',
-  playbackRate: 'Playback rate',
-  quality: 'Quality',
-  rate: 'Rate',
-  skip: 'Skip',
-};
-
-export interface IGozlePlayerContext {
-  autoLevelEnabled: boolean;
-  autoQualityName?: string;
-  buffering: boolean;
-  calculateAndSetPlayed: (
-    pageX: number,
-    timeRef: React.RefObject<HTMLDivElement>,
-  ) => void;
-  containerHeight: number;
-  containerWidth: number;
-  duration: number;
-  fullScreen: boolean;
-  i18n: Internationalization;
-  isAd: boolean;
-  live: boolean;
-  loaded: number;
-  muted: boolean;
-  played: number;
-  playedLock: boolean;
-  playedSeconds: number;
-  playing: boolean;
-  quality: number;
-  qualityLevels: QualityLevel[];
-  rate: number;
-  rateLevels: RateLevel[];
-  seekTo?: (amount: number, type?: 'fraction' | 'seconds') => void;
-  setMuted: Dispatch<SetStateAction<boolean>>;
-  setPlayed: Dispatch<SetStateAction<number>>;
-  setPlayedLock: Dispatch<SetStateAction<boolean>>;
-  setPlaying: Dispatch<SetStateAction<boolean>>;
-  setQuality: Dispatch<SetStateAction<number>>;
-  setRate: Dispatch<SetStateAction<number>>;
-  setVolume: Dispatch<SetStateAction<number>>;
-  toggleFullScreen: () => void;
-  toggleWideScreen: () => void;
-  videoType?: 'video/mp4' | 'application/vnd.apple.mpegurl';
-  volume: number;
-  wideScreen: boolean;
-}
+import { createContext } from 'react';
+import { defaultI18n } from '../lib/constants';
+import { IGozlePlayerContext } from '../lib/interfaces';
 
 const defaultContextValue: IGozlePlayerContext = {
   autoLevelEnabled: true,
@@ -83,14 +21,14 @@ const defaultContextValue: IGozlePlayerContext = {
   playing: false,
   quality: -1,
   qualityLevels: [],
-  rate: 1,
-  rateLevels: [],
+  playbackRate: 1,
+  playbackRateLevels: [],
   setMuted: () => {},
   setPlayed: () => {},
   setPlayedLock: () => {},
   setPlaying: () => {},
   setQuality: () => {},
-  setRate: () => {},
+  setPlaybackRate: () => {},
   setVolume: () => {},
   toggleFullScreen: () => {},
   toggleWideScreen: () => {},
