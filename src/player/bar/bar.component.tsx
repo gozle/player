@@ -12,6 +12,7 @@ type P = {
   landingUrl?: string;
   onSkip?: () => void;
   skipoffset?: number;
+  title?: string;
 };
 
 export const Bar = (props: P) => {
@@ -191,13 +192,13 @@ export const Bar = (props: P) => {
       {isAd && (
         <>
           <div className={styles.top_bar} onClick={(e) => e.stopPropagation()}>
-            <AdLabel />
-            <SkipButton
-              className={styles.skip_button}
-              onClick={handleSkipClick}
-              skipoffset={props.skipoffset}
-            />
+            <AdLabel title={props.title} landingUrl={props.landingUrl} />
           </div>
+          <SkipButton
+            className={styles.skip_button}
+            onClick={handleSkipClick}
+            skipoffset={props.skipoffset}
+          />
         </>
       )}
       <div className={styles.bar} onClick={(e) => e.stopPropagation()}>

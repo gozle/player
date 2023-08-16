@@ -27,6 +27,7 @@ type P = {
   skipoffset?: number;
   thumbnail?: string;
   toggleWideScreen: () => void;
+  title?: string;
   type: 'ad' | 'video';
   url: string;
   videoType: 'application/vnd.apple.mpegurl';

@@ -15,6 +15,7 @@ type P = {
   landingUrl?: string;
   onSkip?: () => void;
   skipoffset?: number;
+  title?: string;
 };
 
 export const MobileControls = (props: P) => {
@@ -183,7 +184,7 @@ export const MobileControls = (props: P) => {
       </div>
       {isAd && (
         <div className={styles.ad_controls}>
-          <AdLabel />
+          <AdLabel title={props.title} landingUrl={props.landingUrl} />
           <SkipButton onClick={handleSkipClick} skipoffset={props.skipoffset} />
         </div>
       )}
