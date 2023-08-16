@@ -38,7 +38,7 @@
   background-color: #00d1ff;
   pointer-events: none;
 
-  [data-locked='true'] {
+  &[data-locked='true'] {
     background-color: #fc0;
   }
 }

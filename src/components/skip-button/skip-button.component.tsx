@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { ArrowRightIcon } from '../../icons';
 
+import { ArrowRightIcon } from '../../icons';
 import { GozlePlayerContext } from '../../player/gozle-player.context';
 
 import styles from './skip-button.module.scss';

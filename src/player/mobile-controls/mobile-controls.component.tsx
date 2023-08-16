@@ -184,7 +184,11 @@ export const MobileControls = (props: P) => {
       </div>
       {isAd && (
         <div className={styles.ad_controls}>
-          <AdLabel title={props.title} landingUrl={props.landingUrl} />
+          <AdLabel
+            className={styles.ad_title}
+            title={props.title}
+            landingUrl={props.landingUrl}
+          />
           <SkipButton onClick={handleSkipClick} skipoffset={props.skipoffset} />
         </div>
       )}

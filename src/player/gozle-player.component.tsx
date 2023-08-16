@@ -23,6 +23,7 @@ type P = {
   landingUrl?: string;
   onEnded?: () => void;
   onFirstPlay: () => void;
+  onReady?: () => void;
   onSkip?: () => void;
   skipoffset?: number;
   thumbnail?: string;
@@ -40,6 +41,7 @@ export const GozlePlayer = ({
   i18n = defaultI18n,
   onEnded,
   onFirstPlay,
+  onReady,
   thumbnail,
   toggleWideScreen,
   type,
@@ -97,7 +99,14 @@ export const GozlePlayer = ({
     [],
   );
 
-  const handleReady = useCallback((ready: boolean) => setReady(ready), []);
+  const handleReady = useCallback(
+    (ready: boolean) => {
+      setReady(ready);
+
+      if (ready && onReady) onReady();
+    },
+    [onReady],
+  );
 
   const handleEnded = () => {
     if (type === 'ad') props.onSkip?.();
