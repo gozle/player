@@ -55,6 +55,7 @@ export const GozlePlayer = ({
   const [playedLock, setPlayedLock] = useState<boolean>(false);
   const [playedSeconds, setPlayedSeconds] = useState<number>(0);
   const [playing, setPlaying] = useState<boolean>(true);
+  const [ready, setReady] = useState(false);
   const [quality, setQuality] = useState<number>(-1);
   const [playbackRate, setPlaybackRate] = useState<number>(1);
   const [volume, setVolume] = useState<number>(1);
@@ -68,7 +69,6 @@ export const GozlePlayer = ({
     qualityLevels: QualityLevel[];
     qualityLevelDetails: QualityLevelDetails;
     onQualityLevelChange: (index: number) => void;
-    ready: boolean;
   }>(null);
 
   const { width: _ } = useResizeObserver(containerRef);
@@ -95,6 +95,8 @@ export const GozlePlayer = ({
       setDuration(currentTarget.duration),
     [],
   );
+
+  const handleReady = useCallback((ready: boolean) => setReady(ready), []);
 
   const handleEnded = () => {
     if (type === 'ad') props.onSkip?.();
@@ -287,6 +289,7 @@ export const GozlePlayer = ({
               onDurationChange={handleDuration}
               onEnded={handleEnded}
               onPlaying={() => setBuffering(false)}
+              onReady={handleReady}
               onPause={() => setPlaying(false)}
               onProgress={handleProgress}
               onTimeUpdate={handleTimeUpdate}
@@ -313,7 +316,7 @@ export const GozlePlayer = ({
             </div>
           )}
         </div>
-        {playerRef.current?.ready ? (
+        {ready ? (
           touchscreen ? (
             <MobileControls {...props} />
           ) : (

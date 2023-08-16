@@ -13,6 +13,7 @@ import { HlsUtil } from '../../lib/utils';
 
 interface P extends MediaHTMLAttributes<HTMLVideoElement> {
   config?: { hls?: Partial<HlsConfig> };
+  onReady: (ready: boolean) => void;
   playing?: boolean;
   poster?: string;
   src: string;
@@ -27,10 +28,9 @@ export const HLSVideoElement = React.forwardRef<
     qualityLevels: QualityLevel[];
     onQualityLevelChange: (index: number) => void;
     qualityLevelDetails?: QualityLevelDetails;
-    ready: boolean;
   },
   P
->(({ config, playing, src, volume, ...props }, ref) => {
+>(({ config, playing, onReady, src, volume, ...props }, ref) => {
   const [ready, setReady] = useState(false);
   const [autoLevelEnabled, setAutoLevelEnabled] = useState(true);
   const [qualityChangeTime, setQualityChangeTime] = useState(0);
@@ -75,79 +75,88 @@ export const HLSVideoElement = React.forwardRef<
     }
 
     setReady(false);
-  }, []);
+    onReady(false);
+  }, [onReady]);
 
-  const load = useCallback(async (src: string) => {
-    destroy();
+  const load = useCallback(
+    async (src: string) => {
+      destroy();
 
-    if (!src) return;
+      if (!src) return;
 
-    // Prefer using hls.js over native if it is supported.
-    if (Hls.isSupported()) {
-      api.current = new Hls({
-        // Mimic the media element with an Infinity duration for live streams.
-        liveDurationInfinity: true,
-        ...config?.hls,
-      });
+      // Prefer using hls.js over native if it is supported.
+      if (Hls.isSupported()) {
+        api.current = new Hls({
+          // Mimic the media element with an Infinity duration for live streams.
+          liveDurationInfinity: true,
+          ...config?.hls,
+        });
 
-      // Set up preload
-      switch (nativeEl.current?.preload) {
-        case 'none': {
-          // when preload is none, load the source on first play
-          const loadSourceOnPlay = () => api.current?.loadSource(src);
-          nativeEl.current.addEventListener('play', loadSourceOnPlay, {
-            once: true,
-          });
-          api.current.on(Hls.Events.DESTROYING, () => {
-            nativeEl.current?.removeEventListener('play', loadSourceOnPlay);
-          });
-          break;
+        // Set up preload
+        switch (nativeEl.current?.preload) {
+          case 'none': {
+            // when preload is none, load the source on first play
+            const loadSourceOnPlay = () => api.current?.loadSource(src);
+            nativeEl.current.addEventListener('play', loadSourceOnPlay, {
+              once: true,
+            });
+            api.current.on(Hls.Events.DESTROYING, () => {
+              nativeEl.current?.removeEventListener('play', loadSourceOnPlay);
+            });
+            break;
+          }
+          case 'metadata': {
+            const originalLength = api.current.config.maxBufferLength;
+            const originalSize = api.current.config.maxBufferSize;
+
+            // load the least amount of data possible
+            api.current.config.maxBufferLength = 1;
+            api.current.config.maxBufferSize = 1;
+
+            // and once a user has player, allow for it to load data as normal
+            const increaseBufferOnPlay = () => {
+              if (api.current) {
+                api.current.config.maxBufferLength = originalLength;
+                api.current.config.maxBufferSize = originalSize;
+              }
+            };
+            nativeEl.current.addEventListener('play', increaseBufferOnPlay, {
+              once: true,
+            });
+            api.current.on(Hls.Events.DESTROYING, () => {
+              nativeEl.current?.removeEventListener(
+                'play',
+                increaseBufferOnPlay,
+              );
+            });
+            api.current.loadSource(src);
+            break;
+          }
+          default:
+            // load source immediately for any other preload value
+            api.current.loadSource(src);
         }
-        case 'metadata': {
-          const originalLength = api.current.config.maxBufferLength;
-          const originalSize = api.current.config.maxBufferSize;
 
-          // load the least amount of data possible
-          api.current.config.maxBufferLength = 1;
-          api.current.config.maxBufferSize = 1;
+        if (nativeEl.current) api.current.attachMedia(nativeEl.current);
 
-          // and once a user has player, allow for it to load data as normal
-          const increaseBufferOnPlay = () => {
-            if (api.current) {
-              api.current.config.maxBufferLength = originalLength;
-              api.current.config.maxBufferSize = originalSize;
-            }
-          };
-          nativeEl.current.addEventListener('play', increaseBufferOnPlay, {
-            once: true,
-          });
-          api.current.on(Hls.Events.DESTROYING, () => {
-            nativeEl.current?.removeEventListener('play', increaseBufferOnPlay);
-          });
-          api.current.loadSource(src);
-          break;
-        }
-        default:
-          // load source immediately for any other preload value
-          api.current.loadSource(src);
+        api.current.on(Hls.Events.MANIFEST_PARSED, () => {
+          setReady(true);
+          onReady(true);
+        });
+
+        return;
       }
 
-      if (nativeEl.current) api.current.attachMedia(nativeEl.current);
+      // Use native HLS. e.g. iOS Safari.
+      if (nativeEl.current?.canPlayType('application/vnd.apple.mpegurl')) {
+        nativeEl.current.src = src;
 
-      api.current.on(Hls.Events.MANIFEST_PARSED, () => {
         setReady(true);
-      });
-
-      return;
-    }
-
-    // Use native HLS. e.g. iOS Safari.
-    if (nativeEl.current?.canPlayType('application/vnd.apple.mpegurl')) {
-      nativeEl.current.src = src;
-
-      setReady(true);
-    }
-  }, []);
+        onReady(true);
+      }
+    },
+    [onReady],
+  );
 
   useImperativeHandle(
     ref,
@@ -158,16 +167,8 @@ export const HLSVideoElement = React.forwardRef<
       qualityLevels: levels,
       qualityLevelDetails: details,
       onQualityLevelChange: handleQualityLevelChange,
-      ready,
     }),
-    [
-      autoLevelEnabled,
-      nativeEl,
-      levels,
-      details,
-      handleQualityLevelChange,
-      ready,
-    ],
+    [autoLevelEnabled, nativeEl, levels, details, handleQualityLevelChange],
   );
 
   useEffect(() => {
