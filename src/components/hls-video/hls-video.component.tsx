@@ -48,7 +48,7 @@ export const HLSVideoElement = React.forwardRef<
 
   const handleQualityLevelChange = useCallback(
     (index: number) => {
-      if (api.current) api.current.currentLevel = index;
+      if (api.current) api.current.nextLevel = index;
       else {
         destroy();
         if (index === -1) load(src);

@@ -298,6 +298,7 @@ export const GozlePlayer = ({
               ref={playerRef}
               onDurationChange={handleDuration}
               onEnded={handleEnded}
+              onPlay={() => setPlaying(true)}
               onPlaying={() => setBuffering(false)}
               onReady={handleReady}
               onPause={() => setPlaying(false)}
